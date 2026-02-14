@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Pluralsight Pando Design Tokens */
+  --color-orange: #E77B33;
+  --color-neutral-900: #1A1A1A;
+  --color-neutral-100: #F5F5F5;
+  --color-success: #6AC56F;
+  --color-warning: #FFB900;
+  --color-error: #E85D5D;
+  --color-info: #0066CC;
+
+  /* Typography */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+}
+
+.dark {
+  --color-neutral-900: #F5F5F5;
+  --color-neutral-100: #1A1A1A;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
