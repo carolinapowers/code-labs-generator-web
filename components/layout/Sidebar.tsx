@@ -13,8 +13,7 @@ const navigation = [
   {
     name: 'Scaffold',
     href: '/dashboard/scaffold',
-    description: 'Coming soon - Scaffold project structure',
-    disabled: true,
+    description: 'Scaffold project structure from LAB_OPPORTUNITY.md',
   },
   {
     name: 'Develop',

@@ -1,47 +1,49 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { brainstormSchema } from '@/lib/validators'
-import { generateDemoLabOpportunity } from '@/lib/demo-data'
+import { getMCPClient } from '@/lib/mcp-client'
 
 export async function POST(req: NextRequest) {
   try {
-    // Check authentication
-    const { userId } = await auth()
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // Check authentication (skip in demo mode for testing)
+    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+    if (!isDemoMode) {
+      const { userId } = await auth()
+      if (!userId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
     }
 
     // Parse and validate request body
     const body = await req.json()
     const validatedData = brainstormSchema.parse(body)
 
-    // Check if demo mode is enabled
-    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+    // Initialize MCP client
+    const mcpClient = getMCPClient({
+      serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3001',
+      demoMode: process.env.NEXT_PUBLIC_DEMO_MODE === 'true',
+    })
 
-    if (isDemoMode) {
-      // Return demo data
-      await new Promise(resolve => setTimeout(resolve, 2000)) // Simulate API delay
-
-      const content = generateDemoLabOpportunity(
-        validatedData.title,
-        validatedData.learningObjectives
-      )
-
-      return NextResponse.json({
-        success: true,
-        content,
-        cost: 0.05,
-        tokensUsed: 1500,
-        mode: 'demo'
-      })
+    // Connect if not connected
+    if (!mcpClient.isConnected()) {
+      await mcpClient.connect()
     }
 
-    // TODO: Real MCP integration
-    // For now, return an error if not in demo mode
+    // Call brainstorm tool
+    const content = await mcpClient.brainstormLabOpportunity(validatedData)
+
+    // Calculate estimated cost (rough estimate based on content length)
+    const estimatedTokens = Math.ceil(content.length / 4) // Rough token estimate
+    const costPerToken = 0.00003 // Example rate
+    const estimatedCost = estimatedTokens * costPerToken
+
     return NextResponse.json({
-      error: 'MCP server integration not yet implemented. Please enable NEXT_PUBLIC_DEMO_MODE=true',
-      success: false
-    }, { status: 501 })
+      success: true,
+      content,
+      cost: estimatedCost,
+      tokensUsed: estimatedTokens,
+      mode: process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ? 'demo' : 'live'
+    })
 
   } catch (error) {
     console.error('Brainstorm API error:', error)

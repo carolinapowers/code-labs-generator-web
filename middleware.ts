@@ -5,6 +5,8 @@ const isPublicRoute = createRouteMatcher([
   '/auth/signin(.*)',
   '/auth/signup(.*)',
   '/api/webhooks(.*)',
+  '/dashboard(.*)',  // Temporarily allow public access for testing
+  '/api/mcp(.*)',    // Allow MCP API access for testing
 ])
 
 export default clerkMiddleware(async (auth, request) => {

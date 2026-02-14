@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { brainstormSchema, type BrainstormFormData } from '@/lib/validators'
@@ -21,6 +21,7 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<BrainstormFormData>({
     resolver: zodResolver(brainstormSchema),
     defaultValues: {
@@ -33,14 +34,22 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
     },
   })
 
+  // Initialize form value with objectives
+  useEffect(() => {
+    setValue('learningObjectives', objectives)
+  }, [])
+
   const addObjective = () => {
-    setObjectives([...objectives, ''])
+    const newObjectives = [...objectives, '']
+    setObjectives(newObjectives)
+    setValue('learningObjectives', newObjectives)
   }
 
   const removeObjective = (index: number) => {
     if (objectives.length > 1) {
       const newObjectives = objectives.filter((_, i) => i !== index)
       setObjectives(newObjectives)
+      setValue('learningObjectives', newObjectives)
     }
   }
 
@@ -48,12 +57,20 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
     const newObjectives = [...objectives]
     newObjectives[index] = value
     setObjectives(newObjectives)
+    // Update form value for validation
+    setValue('learningObjectives', newObjectives)
   }
 
-  const handleFormSubmit = (data: BrainstormFormData) => {
+  const handleFormSubmit = async (data: BrainstormFormData) => {
     // Filter out empty objectives
     const filteredObjectives = objectives.filter(obj => obj.trim() !== '')
-    onSubmit({ ...data, learningObjectives: filteredObjectives })
+
+    // Ensure at least one objective
+    if (filteredObjectives.length === 0) {
+      return
+    }
+
+    await onSubmit({ ...data, learningObjectives: filteredObjectives })
   }
 
   return (

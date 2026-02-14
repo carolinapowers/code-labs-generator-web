@@ -2,6 +2,7 @@
 
 import { UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
+import { MCPStatus } from './MCPStatus'
 
 export function Header() {
   return (
@@ -13,7 +14,8 @@ export function Header() {
             <span className="text-xl font-semibold text-gray-900">Code Labs Generator</span>
           </Link>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-6">
+          <MCPStatus />
           <UserButton
             appearance={{
               elements: {
