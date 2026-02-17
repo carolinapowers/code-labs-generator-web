@@ -31,6 +31,7 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
       skillLevel: 'Intermediate',
       duration: '45-60 minutes',
       technology: '',
+      provider: 'template',
     },
   })
 
@@ -135,6 +136,23 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
             <option value="60+ minutes">60+ minutes</option>
           </select>
         </div>
+      </div>
+
+      <div>
+        <Label htmlFor="provider">AI Provider</Label>
+        <select
+          id="provider"
+          {...register('provider')}
+          className="mt-2 flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ps-orange"
+        >
+          <option value="template">Template (Free)</option>
+          <option value="anthropic">Claude (Best Quality)</option>
+          <option value="openai">GPT-4 (Fast)</option>
+          <option value="google">Gemini (Economical)</option>
+        </select>
+        <p className="text-sm text-gray-500 mt-1">
+          Choose AI provider for content generation or use free template mode
+        </p>
       </div>
 
       <div>
