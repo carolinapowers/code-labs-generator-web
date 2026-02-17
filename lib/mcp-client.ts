@@ -8,36 +8,25 @@ import { BrainstormFormData, ScaffoldFormData, StepFormData } from './types'
 
 export interface MCPClientConfig {
   serverUrl: string
-  demoMode?: boolean
 }
 
 export class MCPClient {
-  private transport: MCPTransport | null = null
-  private demoMode: boolean
+  private transport: MCPTransport
   private serverUrl: string
   private connected: boolean = false
 
   constructor(config: MCPClientConfig) {
     this.serverUrl = config.serverUrl
-    this.demoMode = config.demoMode || false
 
-    if (!this.demoMode) {
-      this.transport = getMCPTransport({
-        serverUrl: this.serverUrl,
-        timeout: 30000,
-        retryAttempts: 3,
-        retryDelay: 1000,
-      })
-    }
+    this.transport = getMCPTransport({
+      serverUrl: this.serverUrl,
+      timeout: 30000,
+      retryAttempts: 3,
+      retryDelay: 1000,
+    })
   }
 
   async connect(): Promise<void> {
-    if (this.demoMode) {
-      console.log('MCP Client running in demo mode')
-      this.connected = true
-      return
-    }
-
     if (!this.transport) {
       throw new Error('MCP transport not initialized')
     }
@@ -66,12 +55,7 @@ export class MCPClient {
   /**
    * Brainstorm tool - generates LAB_OPPORTUNITY.md
    */
-  async brainstormLabOpportunity(data: BrainstormFormData): Promise<string> {
-    if (this.demoMode) {
-      // Return demo data
-      return this.generateDemoLabOpportunity(data)
-    }
-
+  async brainstormLabOpportunity(data: BrainstormFormData & { provider?: string }): Promise<any> {
     if (!this.transport || !this.connected) {
       throw new Error('MCP client not connected')
     }
@@ -84,6 +68,7 @@ export class MCPClient {
         skillLevel: data.skillLevel,
         duration: data.duration,
         technology: data.technology,
+        provider: data.provider || 'template',
       })
 
       return result.content || result
@@ -97,10 +82,6 @@ export class MCPClient {
    * Scaffold React project
    */
   async scaffoldReactProject(data: ScaffoldFormData): Promise<any> {
-    if (this.demoMode) {
-      return this.generateDemoScaffoldFiles('typescript')
-    }
-
     if (!this.transport || !this.connected) {
       throw new Error('MCP client not connected')
     }
@@ -123,10 +104,6 @@ export class MCPClient {
    * Scaffold C# project
    */
   async scaffoldCSharpProject(data: ScaffoldFormData): Promise<any> {
-    if (this.demoMode) {
-      return this.generateDemoScaffoldFiles('csharp')
-    }
-
     if (!this.transport || !this.connected) {
       throw new Error('MCP client not connected')
     }
