@@ -10,6 +10,7 @@ export default function BrainstormPage() {
   const [generatedContent, setGeneratedContent] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [cost, setCost] = useState<number | null>(null)
+  const [provider, setProvider] = useState<string | null>(null)
 
   const handleSubmit = async (data: BrainstormFormData) => {
     setIsLoading(true)
@@ -33,6 +34,7 @@ export default function BrainstormPage() {
 
       setGeneratedContent(result.content)
       setCost(result.cost)
+      setProvider(result.provider)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred')
     } finally {
@@ -87,11 +89,21 @@ export default function BrainstormPage() {
 
             {generatedContent && !isLoading && (
               <div>
-                {cost !== null && (
+                {(cost !== null || provider) && (
                   <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p className="text-sm text-blue-800">
-                      Estimated cost: <strong>${cost.toFixed(4)}</strong>
-                    </p>
+                    <div className="text-sm text-blue-800">
+                      {provider && (
+                        <p>Provider: <strong>{
+                          provider === 'template' ? 'Template (Free)' :
+                          provider === 'anthropic' ? 'Claude' :
+                          provider === 'openai' ? 'GPT-4' :
+                          provider === 'google' ? 'Gemini' : provider
+                        }</strong></p>
+                      )}
+                      {cost !== null && (
+                        <p>Cost: <strong>{cost === 0 ? 'Free' : `$${cost.toFixed(4)}`}</strong></p>
+                      )}
+                    </div>
                   </div>
                 )}
                 <MarkdownRenderer content={generatedContent} />

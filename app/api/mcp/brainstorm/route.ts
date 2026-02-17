@@ -18,10 +18,13 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const validatedData = brainstormSchema.parse(body)
 
+    // Extract provider from validated data
+    const { provider = 'template', ...brainstormData } = validatedData
+
     // Initialize MCP client
     const mcpClient = getMCPClient({
-      serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3001',
-      demoMode: process.env.NEXT_PUBLIC_DEMO_MODE === 'true',
+      serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3002',
+      demoMode: false, // Always use real MCP server now
     })
 
     // Connect if not connected
@@ -29,20 +32,28 @@ export async function POST(req: NextRequest) {
       await mcpClient.connect()
     }
 
-    // Call brainstorm tool
-    const content = await mcpClient.brainstormLabOpportunity(validatedData)
+    // Call brainstorm tool with provider
+    const result = await mcpClient.brainstormLabOpportunity({
+      ...brainstormData,
+      provider
+    })
 
-    // Calculate estimated cost (rough estimate based on content length)
-    const estimatedTokens = Math.ceil(content.length / 4) // Rough token estimate
-    const costPerToken = 0.00003 // Example rate
-    const estimatedCost = estimatedTokens * costPerToken
+    // Extract content, cost, and tokens from result
+    const content = typeof result === 'string' ? result : result.content
+    const actualCost = result.cost || 0
+    const actualTokens = result.tokensUsed || 0
+
+    // If no actual cost/tokens from server, estimate for template mode
+    const finalCost = actualCost || (provider === 'template' ? 0 : Math.ceil(content.length / 4) * 0.00003)
+    const finalTokens = actualTokens || (provider === 'template' ? 0 : Math.ceil(content.length / 4))
 
     return NextResponse.json({
       success: true,
       content,
-      cost: estimatedCost,
-      tokensUsed: estimatedTokens,
-      mode: process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ? 'demo' : 'live'
+      cost: finalCost,
+      tokensUsed: finalTokens,
+      provider,
+      mode: provider === 'template' ? 'template' : 'llm'
     })
 
   } catch (error) {
