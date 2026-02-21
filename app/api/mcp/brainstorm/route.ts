@@ -38,10 +38,26 @@ export async function POST(req: NextRequest) {
       provider
     })
 
-    // Extract content, cost, and tokens from result
-    const content = typeof result === 'string' ? result : result.content
+    console.log('Brainstorm result:', JSON.stringify(result, null, 2))
+
+    // Extract content from MCP response format
+    // MCP returns: [{ type: "text", text: "..." }]
+    let content: string
+    if (typeof result === 'string') {
+      content = result
+    } else if (Array.isArray(result) && result.length > 0 && result[0].text) {
+      content = result[0].text
+    } else if (result.content) {
+      content = result.content
+    } else {
+      content = JSON.stringify(result)
+    }
+
     const actualCost = result.cost || 0
     const actualTokens = result.tokensUsed || 0
+
+    console.log('Extracted content length:', content?.length || 0)
+    console.log('Content preview:', content?.substring(0, 200))
 
     // If no actual cost/tokens from server, estimate for template mode
     const finalCost = actualCost || (provider === 'template' ? 0 : Math.ceil(content.length / 4) * 0.00003)

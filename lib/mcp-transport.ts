@@ -50,6 +50,7 @@ class HttpTransport implements Transport {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
         },
         body: JSON.stringify(message),
         signal: this.abortController.signal,
@@ -59,11 +60,30 @@ class HttpTransport implements Transport {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      const data = await response.json()
+      // Parse SSE response from MCP server
+      const text = await response.text()
 
-      // Handle the response through the onmessage callback
-      if (this.onmessage) {
-        this.onmessage(data)
+      // Handle empty responses (e.g., from notifications that don't expect a response)
+      if (!text || text.trim() === '') {
+        // Empty response is OK for notifications
+        return
+      }
+
+      // Extract JSON from SSE format (event: message\ndata: {...})
+      const lines = text.split('\n')
+      const dataLine = lines.find(line => line.startsWith('data: '))
+
+      if (dataLine) {
+        const jsonStr = dataLine.substring(6) // Remove 'data: ' prefix
+        const data = JSON.parse(jsonStr)
+
+        // Handle the response through the onmessage callback
+        if (this.onmessage) {
+          this.onmessage(data)
+        }
+      } else {
+        console.error('Failed to find data line in SSE response:', text)
+        throw new Error('Invalid SSE response format')
       }
     } catch (error) {
       if (this.onerror) {
@@ -170,9 +190,9 @@ export class MCPTransport {
   async testConnection(): Promise<boolean> {
     try {
       await this.connect()
-      const tools = await this.listTools()
-      await this.disconnect()
-      return tools && tools.length > 0
+      // Just test that we can list tools, don't disconnect yet
+      await this.listTools()
+      return true
     } catch (error) {
       console.error('Connection test failed:', error)
       return false

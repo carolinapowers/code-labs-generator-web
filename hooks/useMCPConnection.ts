@@ -75,7 +75,7 @@ export function useMCPTool() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const callTool = useCallback(async (toolName: string, params: any) => {
+  const callTool = useCallback(async (toolName: string, params: Record<string, unknown>) => {
     setIsLoading(true)
     setError(null)
 

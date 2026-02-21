@@ -240,7 +240,14 @@ export class MCPClient {
       return false
     }
 
-    return await this.transport.testConnection()
+    try {
+      // Use the client's connect method to properly set connected flag
+      await this.connect()
+      return true
+    } catch (error) {
+      console.error('Connection test failed:', error)
+      return false
+    }
   }
 
   // Demo data generators
