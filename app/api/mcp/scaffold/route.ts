@@ -6,14 +6,10 @@ import { FileTreeNode } from '@/lib/types'
 
 export async function POST(req: NextRequest) {
   try {
-    // Check authentication (skip in demo mode for testing)
-    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
-    console.log('Scaffold route - Demo mode:', isDemoMode)
-    if (!isDemoMode) {
-      const { userId } = await auth()
-      if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-      }
+    // Check authentication
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Parse and validate request body
@@ -22,8 +18,7 @@ export async function POST(req: NextRequest) {
 
     // Initialize MCP client
     const mcpClient = getMCPClient({
-      serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3001',
-      demoMode: process.env.NEXT_PUBLIC_DEMO_MODE === 'true',
+      serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3002/mcp',
     })
 
     // Connect if not connected
@@ -55,7 +50,6 @@ export async function POST(req: NextRequest) {
       files: result.files || [],
       fileTree,
       message: result.message || 'Project scaffolded successfully',
-      mode: process.env.NEXT_PUBLIC_DEMO_MODE === 'true' ? 'demo' : 'live',
     })
   } catch (error) {
     console.error('Scaffold API error:', error)

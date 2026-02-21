@@ -9,13 +9,10 @@ export interface MCPProxyRequest {
 
 export async function POST(req: NextRequest) {
   try {
-    // Check authentication (skip in demo mode for testing)
-    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
-    if (!isDemoMode) {
-      const { userId } = await auth()
-      if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-      }
+    // Check authentication
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body: MCPProxyRequest = await req.json()
@@ -26,8 +23,7 @@ export async function POST(req: NextRequest) {
 
     // Initialize MCP client
     const mcpClient = getMCPClient({
-      serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3001',
-      demoMode: process.env.NEXT_PUBLIC_DEMO_MODE === 'true',
+      serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3002/mcp',
     })
 
     // Connect if not connected
@@ -105,18 +101,14 @@ export async function POST(req: NextRequest) {
 // Test connection endpoint
 export async function GET(req: NextRequest) {
   try {
-    // Check authentication (skip in demo mode for testing)
-    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
-    if (!isDemoMode) {
-      const { userId } = await auth()
-      if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-      }
+    // Check authentication
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const mcpClient = getMCPClient({
-      serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3001',
-      demoMode: process.env.NEXT_PUBLIC_DEMO_MODE === 'true',
+      serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3002/mcp',
     })
 
     const isConnected = await mcpClient.testConnection()
@@ -125,7 +117,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       connected: isConnected,
       serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL,
-      demoMode: process.env.NEXT_PUBLIC_DEMO_MODE === 'true',
       tools,
     })
   } catch (error) {

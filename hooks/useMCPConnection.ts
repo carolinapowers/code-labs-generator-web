@@ -6,7 +6,6 @@ import { useQuery } from '@tanstack/react-query'
 export interface MCPConnectionStatus {
   connected: boolean
   serverUrl: string
-  demoMode: boolean
   tools: string[]
   error?: string
 }
@@ -15,7 +14,6 @@ export function useMCPConnection() {
   const [status, setStatus] = useState<MCPConnectionStatus>({
     connected: false,
     serverUrl: '',
-    demoMode: true,
     tools: [],
   })
 
@@ -42,7 +40,6 @@ export function useMCPConnection() {
       setStatus({
         connected: data.connected,
         serverUrl: data.serverUrl || '',
-        demoMode: data.demoMode || false,
         tools: data.tools || [],
         error: data.error,
       })

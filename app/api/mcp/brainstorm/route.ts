@@ -5,13 +5,10 @@ import { getMCPClient } from '@/lib/mcp-client'
 
 export async function POST(req: NextRequest) {
   try {
-    // Check authentication (skip in demo mode for testing)
-    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
-    if (!isDemoMode) {
-      const { userId } = await auth()
-      if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-      }
+    // Check authentication
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Parse and validate request body
@@ -23,8 +20,7 @@ export async function POST(req: NextRequest) {
 
     // Initialize MCP client
     const mcpClient = getMCPClient({
-      serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3002',
-      demoMode: false, // Always use real MCP server now
+      serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3002/mcp',
     })
 
     // Connect if not connected
@@ -37,8 +33,6 @@ export async function POST(req: NextRequest) {
       ...brainstormData,
       provider
     })
-
-    console.log('Brainstorm result:', JSON.stringify(result, null, 2))
 
     // Extract content from MCP response format
     // MCP returns: [{ type: "text", text: "..." }]
@@ -55,9 +49,6 @@ export async function POST(req: NextRequest) {
 
     const actualCost = result.cost || 0
     const actualTokens = result.tokensUsed || 0
-
-    console.log('Extracted content length:', content?.length || 0)
-    console.log('Content preview:', content?.substring(0, 200))
 
     // If no actual cost/tokens from server, estimate for template mode
     const finalCost = actualCost || (provider === 'template' ? 0 : Math.ceil(content.length / 4) * 0.00003)

@@ -388,10 +388,9 @@ export function getMCPClient(config?: MCPClientConfig): MCPClient {
   }
 
   if (!mcpClientInstance) {
-    // Default to demo mode if no config provided
+    // Default config if none provided
     mcpClientInstance = new MCPClient({
-      serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3001',
-      demoMode: process.env.NEXT_PUBLIC_DEMO_MODE === 'true',
+      serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3002/mcp',
     })
   }
 
