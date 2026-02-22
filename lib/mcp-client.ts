@@ -55,7 +55,7 @@ export class MCPClient {
   /**
    * Brainstorm tool - generates LAB_OPPORTUNITY.md
    */
-  async brainstormLabOpportunity(data: BrainstormFormData & { provider?: string }): Promise<any> {
+  async brainstormLabOpportunity(data: BrainstormFormData & { provider?: string; apiKey?: string }): Promise<any> {
     if (!this.transport || !this.connected) {
       throw new Error('MCP client not connected')
     }
@@ -69,6 +69,7 @@ export class MCPClient {
         duration: data.duration,
         technology: data.technology,
         provider: data.provider || 'template',
+        ...(data.apiKey ? { apiKey: data.apiKey } : {}),
       })
 
       return result.content || result

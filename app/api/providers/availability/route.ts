@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     // Check authentication (skip in testing mode)
     const isTestingMode = process.env.TESTING_MODE === 'true'
@@ -12,10 +12,19 @@ export async function GET() {
       }
     }
 
-    // Check which API keys are configured
-    const hasAnthropicKey = !!process.env.ANTHROPIC_API_KEY
-    const hasOpenAIKey = !!process.env.OPENAI_API_KEY
-    const hasGoogleKey = !!process.env.GOOGLE_GENERATIVE_AI_API_KEY
+    // Check server-configured API keys (environment variables)
+    const hasAnthropicEnvKey = !!process.env.ANTHROPIC_API_KEY
+    const hasOpenAIEnvKey = !!process.env.OPENAI_API_KEY
+    const hasGoogleEnvKey = !!process.env.GOOGLE_GENERATIVE_AI_API_KEY
+
+    // Also accept user-provided keys forwarded via request headers
+    const userAnthropicKey = req.headers.get('x-anthropic-key') || ''
+    const userOpenAIKey = req.headers.get('x-openai-key') || ''
+    const userGoogleKey = req.headers.get('x-google-key') || ''
+
+    const hasAnthropicKey = hasAnthropicEnvKey || !!userAnthropicKey
+    const hasOpenAIKey = hasOpenAIEnvKey || !!userOpenAIKey
+    const hasGoogleKey = hasGoogleEnvKey || !!userGoogleKey
 
     const providers = [
       {

@@ -18,6 +18,21 @@ export async function POST(req: NextRequest) {
     // Extract provider from validated data
     const { provider = 'template', ...brainstormData } = validatedData
 
+    // Pick up any user-provided API keys forwarded from the client
+    const userAnthropicKey = req.headers.get('x-anthropic-key') || undefined
+    const userOpenAIKey = req.headers.get('x-openai-key') || undefined
+    const userGoogleKey = req.headers.get('x-google-key') || undefined
+
+    // Resolve the active API key for the chosen provider
+    const resolvedApiKey =
+      provider === 'anthropic'
+        ? userAnthropicKey || process.env.ANTHROPIC_API_KEY
+        : provider === 'openai'
+        ? userOpenAIKey || process.env.OPENAI_API_KEY
+        : provider === 'google'
+        ? userGoogleKey || process.env.GOOGLE_GENERATIVE_AI_API_KEY
+        : undefined
+
     // Initialize MCP client
     const mcpClient = getMCPClient({
       serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3002/mcp',
@@ -28,10 +43,11 @@ export async function POST(req: NextRequest) {
       await mcpClient.connect()
     }
 
-    // Call brainstorm tool with provider
+    // Call brainstorm tool with provider and resolved API key
     const result = await mcpClient.brainstormLabOpportunity({
       ...brainstormData,
-      provider
+      provider,
+      ...(resolvedApiKey ? { apiKey: resolvedApiKey } : {}),
     })
 
     // Extract content from MCP response format

@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
+import { getAllApiKeys } from '@/lib/api-key-storage'
 
 export type ProviderId = 'anthropic' | 'openai' | 'google' | 'template'
 
@@ -39,7 +40,9 @@ export function useProviderAvailability(): ProviderAvailability {
     refetchOnWindowFocus: false,
   })
 
-  const providers: ProviderInfo[] = data?.providers || [
+  const userKeys = getAllApiKeys()
+
+  const defaultProviders: ProviderInfo[] = [
     {
       id: 'template',
       name: 'Template (Free)',
@@ -74,6 +77,17 @@ export function useProviderAvailability(): ProviderAvailability {
     },
   ]
 
+  const serverProviders: ProviderInfo[] = data?.providers || defaultProviders
+
+  // Merge server availability with user-configured keys from localStorage.
+  // If the user has stored a key for a provider, mark it as available even if
+  // the server has no environment-variable key configured.
+  const providers: ProviderInfo[] = serverProviders.map((p) => {
+    if (p.id === 'template') return p
+    const hasUserKey = !!userKeys[p.id as keyof typeof userKeys]
+    return { ...p, available: p.available || hasUserKey }
+  })
+
   const availableProviders = providers.filter(p => p.available)
   const defaultProvider: ProviderId = availableProviders[0]?.id ?? 'template'
 
@@ -85,3 +99,4 @@ export function useProviderAvailability(): ProviderAvailability {
     defaultProvider,
   }
 }
+

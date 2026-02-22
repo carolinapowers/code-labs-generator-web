@@ -5,6 +5,7 @@ import { ProjectConfigForm } from '@/components/forms/ProjectConfigForm'
 import { FileTree } from '@/components/displays/FileTree'
 import { CodePreview } from '@/components/displays/CodePreview'
 import { Button } from '@/components/ui/button'
+import { buildApiKeyHeaders } from '@/lib/api-key-storage'
 import type { ScaffoldFormData } from '@/lib/validators'
 import type { FileTreeNode } from '@/lib/types'
 
@@ -25,6 +26,7 @@ export default function ScaffoldPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...buildApiKeyHeaders(),
         },
         body: JSON.stringify(data),
       })
