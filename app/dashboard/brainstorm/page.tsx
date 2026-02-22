@@ -49,8 +49,8 @@ export default function BrainstormPage() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Brainstorm Workflow</h1>
-        <p className="text-gray-600">
+        <h1 className="text-3xl font-bold text-text-primary mb-2">Brainstorm Workflow</h1>
+        <p className="text-text-secondary">
           Generate a complete LAB_OPPORTUNITY.md file from your learning objectives.
           This AI-powered tool structures your ideas into a comprehensive Code Lab plan.
         </p>
@@ -59,36 +59,36 @@ export default function BrainstormPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Form Section */}
         <div>
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Learning Objectives</h2>
+          <div className="bg-bg-card rounded-lg border border-border-default p-6">
+            <h2 className="text-xl font-semibold text-text-primary mb-4">Learning Objectives</h2>
             <LearningObjectivesForm onSubmit={handleSubmit} isLoading={isLoading} />
           </div>
         </div>
 
         {/* Preview Section */}
         <div>
-          <div className="sticky top-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Preview</h2>
+          <div className="sticky top-8 bg-bg-card rounded-lg border border-border-default p-6">
+            <h2 className="text-xl font-semibold text-text-primary mb-4">Preview</h2>
 
             {isLoading && (
-              <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ps-orange mx-auto mb-4"></div>
-                <p className="text-gray-600">Generating LAB_OPPORTUNITY.md...</p>
+              <div className="bg-gray-50 dark:bg-bg-tertiary rounded-lg p-12 text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-orange mx-auto mb-4"></div>
+                <p className="text-text-secondary">Generating LAB_OPPORTUNITY.md...</p>
               </div>
             )}
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-                <h3 className="text-red-800 font-semibold mb-2">Error</h3>
-                <p className="text-red-700">{error}</p>
+              <div className="bg-status-error border border-ps-error rounded-lg p-6">
+                <h3 className="text-status-error font-semibold mb-2">Error</h3>
+                <p className="text-status-error">{error}</p>
               </div>
             )}
 
             {generatedContent && !isLoading && (
               <div>
                 {(cost !== null || provider) && (
-                  <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div className="text-sm text-blue-800">
+                  <div className="mb-4 bg-status-info border border-ps-info rounded-lg p-4">
+                    <div className="text-sm text-status-info">
                       {provider && (
                         <p>Provider: <strong>{
                           provider === 'template' ? 'Template (Free)' :
@@ -108,8 +108,8 @@ export default function BrainstormPage() {
             )}
 
             {!isLoading && !error && !generatedContent && (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
-                <p className="text-gray-500">
+              <div className="bg-gray-50 dark:bg-bg-tertiary rounded-lg p-12 text-center">
+                <p className="text-text-muted">
                   Fill out the form and click "Generate" to see your LAB_OPPORTUNITY.md
                 </p>
               </div>

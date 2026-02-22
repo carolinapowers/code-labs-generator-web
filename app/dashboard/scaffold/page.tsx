@@ -128,7 +128,7 @@ export default function ScaffoldPage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-[minmax(280px,1fr)_2fr] gap-6">
                 <FileTree
                   files={files}
                   onFileSelect={setSelectedFile}

@@ -35,7 +35,7 @@ export function Sidebar() {
   return (
     <div
       className={cn(
-        'relative border-r border-gray-200 bg-white transition-all duration-300',
+        'relative border-r border-border-default bg-bg-sidebar transition-all duration-300',
         isCollapsed ? 'w-16' : 'w-64'
       )}
     >
@@ -43,13 +43,13 @@ export function Sidebar() {
       <button
         type="button"
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-6 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm hover:bg-gray-50 transition-colors"
+        className="absolute -right-3 top-6 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-border-default bg-bg-primary shadow-sm hover:bg-bg-secondary transition-colors"
         aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {isCollapsed ? (
-          <ChevronRight className="h-4 w-4 text-gray-600" />
+          <ChevronRight className="h-4 w-4 text-text-secondary" />
         ) : (
-          <ChevronLeft className="h-4 w-4 text-gray-600" />
+          <ChevronLeft className="h-4 w-4 text-text-secondary" />
         )}
       </button>
 
@@ -65,10 +65,10 @@ export function Sidebar() {
                 'block rounded-lg text-sm font-medium transition-colors',
                 isCollapsed ? 'px-2 py-3' : 'px-4 py-3',
                 isActive
-                  ? 'bg-ps-orange text-white'
+                  ? 'bg-accent-orange text-white dark:bg-accent-hover'
                   : item.disabled
-                  ? 'text-gray-400 cursor-not-allowed'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'text-text-muted cursor-not-allowed'
+                  : 'text-text-primary hover:bg-bg-tertiary'
               )}
               onClick={(e) => item.disabled && e.preventDefault()}
               title={isCollapsed ? item.name : undefined}
@@ -85,7 +85,7 @@ export function Sidebar() {
                   </div>
                   <div className={cn(
                     'text-xs mt-1',
-                    isActive ? 'text-white/80' : 'text-gray-500'
+                    isActive ? 'text-white/80' : 'text-text-secondary'
                   )}>
                     {item.description}
                   </div>

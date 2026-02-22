@@ -8,8 +8,8 @@ export function MCPStatus() {
   if (isLoading) {
     return (
       <div className="flex items-center space-x-2 text-sm">
-        <div className="h-2 w-2 rounded-full bg-gray-400 animate-pulse" />
-        <span className="text-gray-500">Checking MCP...</span>
+        <div className="h-2 w-2 rounded-full bg-text-muted animate-pulse" />
+        <span className="text-text-secondary">Checking MCP...</span>
       </div>
     )
   }
@@ -18,14 +18,14 @@ export function MCPStatus() {
     <div className="flex items-center space-x-2 text-sm">
       <div
         className={`h-2 w-2 rounded-full ${
-          connected ? 'bg-green-500' : 'bg-red-500'
+          connected ? 'bg-ps-success' : 'bg-ps-error'
         }`}
       />
-      <span className={connected ? 'text-green-700' : 'text-red-700'}>
+      <span className={connected ? 'text-ps-success' : 'text-ps-error'}>
         {connected ? 'MCP Connected' : 'MCP Disconnected'}
       </span>
       {serverUrl && (
-        <span className="text-gray-400 text-xs">({serverUrl})</span>
+        <span className="text-text-muted text-xs">({serverUrl})</span>
       )}
     </div>
   )
