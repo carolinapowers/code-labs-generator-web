@@ -2,8 +2,10 @@
 
 import { useQuery } from '@tanstack/react-query'
 
+export type ProviderId = 'anthropic' | 'openai' | 'google' | 'template'
+
 export interface ProviderInfo {
-  id: string
+  id: ProviderId
   name: string
   description: string
   available: boolean
@@ -16,7 +18,7 @@ export interface ProviderAvailability {
   isLoading: boolean
   error: string | null
   availableProviders: ProviderInfo[]
-  defaultProvider: string
+  defaultProvider: ProviderId
 }
 
 export function useProviderAvailability(): ProviderAvailability {
@@ -73,7 +75,14 @@ export function useProviderAvailability(): ProviderAvailability {
   ]
 
   const availableProviders = providers.filter(p => p.available)
-  const defaultProvider = availableProviders[0]?.id || 'template'
+  const firstAvailable = availableProviders[0]?.id
+  const defaultProvider: ProviderId =
+    firstAvailable === 'anthropic' ||
+    firstAvailable === 'openai' ||
+    firstAvailable === 'google' ||
+    firstAvailable === 'template'
+      ? firstAvailable
+      : 'template'
 
   return {
     providers,

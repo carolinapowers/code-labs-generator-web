@@ -25,7 +25,7 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
     formState: { errors },
     setValue,
     watch,
-  } = useForm<BrainstormFormData>({
+  } = useForm({
     resolver: zodResolver(brainstormSchema),
     defaultValues: {
       title: '',
@@ -34,7 +34,7 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
       skillLevel: 'Intermediate',
       duration: '45-60 minutes',
       technology: '',
-      provider: defaultProvider,
+      provider: 'template',
     },
   })
 

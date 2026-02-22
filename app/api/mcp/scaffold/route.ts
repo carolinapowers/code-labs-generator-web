@@ -82,7 +82,7 @@ function buildFileTree(files: any[]): FileTreeNode[] {
     const parts = file.path.split('/')
     let currentLevel = root
 
-    parts.forEach((part, index) => {
+    parts.forEach((part: string, index: number) => {
       if (!currentLevel[part]) {
         const isFile = index === parts.length - 1
 

@@ -126,10 +126,6 @@ export class MCPClient {
    * Scaffold Go project
    */
   async scaffoldGoProject(data: ScaffoldFormData): Promise<any> {
-    if (this.demoMode) {
-      return this.generateDemoScaffoldFiles('go')
-    }
-
     if (!this.transport || !this.connected) {
       throw new Error('MCP client not connected')
     }
@@ -152,10 +148,6 @@ export class MCPClient {
    * Create step
    */
   async createStep(data: StepFormData): Promise<any> {
-    if (this.demoMode) {
-      return this.generateDemoStep(data)
-    }
-
     if (!this.transport || !this.connected) {
       throw new Error('MCP client not connected')
     }
@@ -178,10 +170,6 @@ export class MCPClient {
    * Run tests for a step
    */
   async runTests(stepNumber: number, tags?: string[]): Promise<any> {
-    if (this.demoMode) {
-      return this.generateDemoTestResults(stepNumber)
-    }
-
     if (!this.transport || !this.connected) {
       throw new Error('MCP client not connected')
     }
@@ -203,18 +191,6 @@ export class MCPClient {
    * List available tools
    */
   async listTools(): Promise<string[]> {
-    if (this.demoMode) {
-      return [
-        'brainstorm_lab_opportunity',
-        'scaffold_react_project',
-        'scaffold_csharp_project',
-        'scaffold_go_project',
-        'create_step',
-        'run_tests',
-        'add_solution',
-      ]
-    }
-
     if (!this.transport || !this.connected) {
       throw new Error('MCP client not connected')
     }
@@ -232,10 +208,6 @@ export class MCPClient {
    * Test connection to MCP server
    */
   async testConnection(): Promise<boolean> {
-    if (this.demoMode) {
-      return true
-    }
-
     if (!this.transport) {
       return false
     }
