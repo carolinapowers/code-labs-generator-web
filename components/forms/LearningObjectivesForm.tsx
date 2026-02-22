@@ -190,7 +190,9 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
                   <span>
-                    This provider requires an API key. Configure {currentProvider?.name} API key in environment variables to use this option.
+                    This provider requires an API key. Configure {currentProvider?.name} API key in{' '}
+                    <a href="/dashboard/settings" className="underline font-medium">Settings</a>{' '}
+                    to use this option.
                   </span>
                 </div>
               )}
@@ -200,7 +202,9 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
 
         {availableProviders.length === 1 && availableProviders[0].id === 'template' && (
           <div className="mt-2 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-md p-2">
-            💡 <strong>Tip:</strong> Add LLM provider API keys to unlock AI-powered content generation with better customization and quality.
+            💡 <strong>Tip:</strong> Add LLM provider API keys in{' '}
+            <a href="/dashboard/settings" className="underline font-medium">Settings</a>{' '}
+            to unlock AI-powered content generation with better customization and quality.
           </div>
         )}
       </div>

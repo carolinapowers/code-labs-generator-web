@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { LearningObjectivesForm } from '@/components/forms/LearningObjectivesForm'
 import { MarkdownRenderer } from '@/components/displays/MarkdownRenderer'
+import { buildApiKeyHeaders } from '@/lib/api-key-storage'
 import type { BrainstormFormData } from '@/lib/validators'
 
 export default function BrainstormPage() {
@@ -22,6 +23,7 @@ export default function BrainstormPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...buildApiKeyHeaders(),
         },
         body: JSON.stringify(data),
       })
