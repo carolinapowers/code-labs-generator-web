@@ -36,7 +36,7 @@ export function Sidebar() {
   return (
     <div
       className={cn(
-        'flex flex-col h-full border-r border-border-default bg-bg-sidebar transition-all duration-300',
+        'relative flex flex-col h-full border-r border-border-default bg-bg-sidebar transition-all duration-300',
         isCollapsed ? 'w-16' : 'w-64'
       )}
     >
