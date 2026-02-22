@@ -11,6 +11,8 @@ export interface ScaffoldFormData {
   projectName: string
   language: 'typescript' | 'csharp' | 'go'
   opportunityPath?: string
+  opportunityContent?: string
+  targetDirectory?: string
 }
 
 export interface StepFormData {

@@ -127,7 +127,7 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
           <select
             id="skillLevel"
             {...register('skillLevel')}
-            className="mt-2 flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ps-orange"
+            className="mt-2 flex h-10 w-full rounded-lg border border-border-default bg-white dark:bg-bg-tertiary text-text-primary px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-orange"
           >
             <option value="Beginner">Beginner</option>
             <option value="Intermediate">Intermediate</option>
@@ -140,7 +140,7 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
           <select
             id="duration"
             {...register('duration')}
-            className="mt-2 flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ps-orange"
+            className="mt-2 flex h-10 w-full rounded-lg border border-border-default bg-white dark:bg-bg-tertiary text-text-primary px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-orange"
           >
             <option value="15-30 minutes">15-30 minutes</option>
             <option value="30-45 minutes">30-45 minutes</option>
@@ -155,7 +155,7 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
         <select
           id="provider"
           {...register('provider')}
-          className="mt-2 flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ps-orange disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-2 flex h-10 w-full rounded-lg border border-border-default bg-white dark:bg-bg-tertiary text-text-primary px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-orange disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {providers.map((provider) => (
             <option
@@ -175,7 +175,7 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
           return (
             <div className="mt-2">
               {currentProvider?.available ? (
-                <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-md p-2 flex items-start gap-2">
+                <div className="text-sm text-status-success bg-status-success border border-ps-success rounded-md p-2 flex items-start gap-2">
                   <svg className="w-4 h-4 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
@@ -185,7 +185,7 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
                   </span>
                 </div>
               ) : (
-                <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-2 flex items-start gap-2">
+                <div className="text-sm text-status-warning bg-status-warning border border-ps-warning rounded-md p-2 flex items-start gap-2">
                   <svg className="w-4 h-4 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
@@ -199,7 +199,7 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
         })()}
 
         {availableProviders.length === 1 && availableProviders[0].id === 'template' && (
-          <div className="mt-2 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-md p-2">
+          <div className="mt-2 text-sm text-status-info bg-status-info border border-ps-info rounded-md p-2">
             💡 <strong>Tip:</strong> Add LLM provider API keys to unlock AI-powered content generation with better customization and quality.
           </div>
         )}
@@ -207,7 +207,7 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
 
       <div>
         <Label>Learning Objectives *</Label>
-        <p className="text-sm text-gray-500 mt-1 mb-3">
+        <p className="text-sm text-text-secondary mt-1 mb-3">
           What should learners be able to do after completing this Code Lab?
         </p>
         <div className="space-y-3">
