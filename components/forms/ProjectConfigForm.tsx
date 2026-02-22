@@ -13,9 +13,15 @@ interface Props {
   onSubmit: (data: ScaffoldFormData) => Promise<void>
   isLoading?: boolean
   initialOpportunityContent?: string | null
+  initialProjectName?: string | null
 }
 
-export function ProjectConfigForm({ onSubmit, isLoading, initialOpportunityContent }: Props) {
+export function ProjectConfigForm({
+  onSubmit,
+  isLoading,
+  initialOpportunityContent,
+  initialProjectName
+}: Props) {
   const {
     register,
     handleSubmit,
@@ -24,7 +30,7 @@ export function ProjectConfigForm({ onSubmit, isLoading, initialOpportunityConte
   } = useForm<ScaffoldFormData>({
     resolver: zodResolver(scaffoldSchema),
     defaultValues: {
-      projectName: '',
+      projectName: initialProjectName || '',
       language: 'typescript',
       opportunityPath: '',
       opportunityContent: initialOpportunityContent || '',

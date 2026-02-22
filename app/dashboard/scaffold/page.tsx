@@ -6,6 +6,7 @@ import { FileTree } from '@/components/displays/FileTree'
 import { CodePreview } from '@/components/displays/CodePreview'
 import { Button } from '@/components/ui/button'
 import { useWorkflow } from '@/contexts/WorkflowContext'
+import { downloadProjectAsZip, getFileStats, formatBytes } from '@/lib/download-utils'
 import type { ScaffoldFormData } from '@/lib/validators'
 import type { FileTreeNode } from '@/lib/types'
 
@@ -14,13 +15,15 @@ export default function ScaffoldPage() {
   const [files, setFiles] = useState<FileTreeNode[]>([])
   const [selectedFile, setSelectedFile] = useState<FileTreeNode | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const { brainstormContent } = useWorkflow()
+  const [projectName, setProjectName] = useState<string>('')
+  const { brainstormContent, suggestedProjectName } = useWorkflow()
 
   const handleSubmit = async (data: ScaffoldFormData) => {
     setIsLoading(true)
     setError(null)
     setFiles([])
     setSelectedFile(null)
+    setProjectName(data.projectName)
 
     try {
       const response = await fetch('/api/mcp/scaffold', {
@@ -45,19 +48,13 @@ export default function ScaffoldPage() {
     }
   }
 
-  const downloadAllFiles = () => {
-    // Create a simple download of all files as a JSON structure
-    const fileData = JSON.stringify(files, null, 2)
-    const blob = new Blob([fileData], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'scaffolded-project.json'
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+  const handleDownloadProject = async () => {
+    if (files.length > 0) {
+      await downloadProjectAsZip(files, projectName || 'code-lab-project')
+    }
   }
+
+  const stats = files.length > 0 ? getFileStats(files) : null
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -85,6 +82,7 @@ export default function ScaffoldPage() {
               onSubmit={handleSubmit}
               isLoading={isLoading}
               initialOpportunityContent={brainstormContent}
+              initialProjectName={suggestedProjectName}
             />
           </div>
         </div>
@@ -107,11 +105,26 @@ export default function ScaffoldPage() {
 
           {files.length > 0 && !isLoading && (
             <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-gray-900">Generated Files</h2>
-                <Button onClick={downloadAllFiles} variant="outline">
-                  Download All Files
-                </Button>
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900 mb-2">Generated Project: {projectName}</h2>
+                    {stats && (
+                      <div className="flex items-center gap-6 text-sm text-gray-600">
+                        <span>📁 {stats.totalDirectories} directories</span>
+                        <span>📄 {stats.totalFiles} files</span>
+                        <span>💾 {formatBytes(stats.totalSize)}</span>
+                      </div>
+                    )}
+                  </div>
+                  <Button onClick={handleDownloadProject} size="lg" className="gap-2">
+                    <span>⬇️</span>
+                    Download as ZIP
+                  </Button>
+                </div>
+                <p className="text-sm text-gray-500">
+                  Click on any file in the tree to preview its contents. Download the entire project as a ZIP file to get started.
+                </p>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
