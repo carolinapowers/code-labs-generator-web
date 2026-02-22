@@ -34,7 +34,7 @@ export class CSharpScaffoldGenerator implements ScaffoldGenerator {
     // Pages directory
     files.push({
       path: 'Pages/_ViewImports.cshtml',
-      content: this.generateViewImports(),
+      content: this.generateViewImports(config.projectName),
     })
 
     files.push({
@@ -232,9 +232,9 @@ app.Run();
     }, null, 2)
   }
 
-  private generateViewImports(): string {
-    return `@using ${this.toPascalCase('project')}
-@namespace ${this.toPascalCase('project')}.Pages
+  private generateViewImports(projectName: string): string {
+    return `@using ${this.toPascalCase(projectName)}
+@namespace ${this.toPascalCase(projectName)}.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 `
   }

@@ -17,9 +17,13 @@ export async function downloadProjectAsZip(
 
       if (node.type === 'file' && node.content) {
         zip.file(fullPath, node.content)
-      } else if (node.type === 'directory' && node.children) {
-        // Create folder and add its children
-        addFilesToZip(node.children, fullPath)
+      } else if (node.type === 'directory') {
+        // Explicitly create the folder to preserve empty directories
+        zip.folder(fullPath)
+        // Add its children, if any
+        if (node.children) {
+          addFilesToZip(node.children, fullPath)
+        }
       }
     })
   }

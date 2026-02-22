@@ -47,7 +47,7 @@ function detectLanguage(content: string): Language | null {
   const lowerContent = content.toLowerCase()
 
   // Check in the technology section first if present (most reliable)
-  const techMatch = content.match(/##\s*Technology.*?\n(.*?)(?=\n##|$)/is)
+  const techMatch = content.match(/##\s*Technology.*?\n([\s\S]*?)(?=\n##|$)/i)
   if (techMatch) {
     const techSection = techMatch[1].toLowerCase()
     if (techSection.includes('go') && !techSection.includes('django') && !techSection.includes('mongo')) return 'go'
@@ -58,7 +58,6 @@ function detectLanguage(content: string): Language | null {
   // Check for Go indicators FIRST (before TypeScript which might match incidentally)
   // Look for Go-specific patterns
   if (
-    /\bgo\b/i.test(content) || // Word boundary match for "go"
     lowerContent.includes('golang') ||
     lowerContent.includes('go web') ||
     lowerContent.includes('go application') ||
@@ -66,7 +65,16 @@ function detectLanguage(content: string): Language | null {
     lowerContent.includes('with go') ||
     lowerContent.includes('using go') ||
     lowerContent.includes('-go-') || // Matches "for-go-applications"
-    lowerContent.includes('in go')
+    lowerContent.includes('in go') ||
+    // More specific Go language indicators
+    lowerContent.includes('go programming') ||
+    lowerContent.includes('go language') ||
+    lowerContent.includes('go module') ||
+    lowerContent.includes('goroutine') ||
+    lowerContent.includes('go package') ||
+    // Check if "go" appears near programming-related terms (within ~50 chars)
+    /\bgo\b.{0,50}\b(package|module|struct|interface|goroutine|channel|framework|server|handler|api)\b/i.test(content) ||
+    /\b(package|module|struct|interface|goroutine|channel|framework|server|handler|api)\b.{0,50}\bgo\b/i.test(content)
   ) {
     // Make sure it's not a false positive (e.g., "Django", "Mongo")
     if (!lowerContent.includes('django') && !lowerContent.includes('mongo')) {

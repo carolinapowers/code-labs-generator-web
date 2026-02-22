@@ -46,19 +46,15 @@ export function ProjectConfigForm({
     if (initialProjectName) {
       setValue('projectName', initialProjectName)
     }
-  }, [initialProjectName, setValue])
 
-  useEffect(() => {
     if (initialLanguage) {
       setValue('language', initialLanguage)
     }
-  }, [initialLanguage, setValue])
 
-  useEffect(() => {
     if (initialOpportunityContent) {
       setValue('opportunityContent', initialOpportunityContent)
     }
-  }, [initialOpportunityContent, setValue])
+  }, [initialProjectName, initialLanguage, initialOpportunityContent, setValue])
 
   const selectedLanguage = watch('language')
 

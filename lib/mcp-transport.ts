@@ -47,9 +47,11 @@ class HttpTransport implements Transport {
       throw new Error('Transport not started')
     }
 
+    let timeoutId: NodeJS.Timeout | null = null
+
     // Create a timeout promise
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => {
+      timeoutId = setTimeout(() => {
         this.abortController?.abort()
         reject(new Error(`Request timed out after ${this.timeout}ms`))
       }, this.timeout)
@@ -110,6 +112,11 @@ class HttpTransport implements Transport {
         this.onerror(error as Error)
       }
       throw error
+    } finally {
+      // Clear the timeout to prevent memory leak
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId)
+      }
     }
   }
 
