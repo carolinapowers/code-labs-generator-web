@@ -30,9 +30,11 @@ export interface MCPResponse<T = any> {
 class HttpTransport implements Transport {
   private serverUrl: string
   private abortController: AbortController | null = null
+  private timeout: number
 
-  constructor(serverUrl: string) {
+  constructor(serverUrl: string, timeout: number = 180000) {
     this.serverUrl = serverUrl
+    this.timeout = timeout
   }
 
   async start(): Promise<void> {
@@ -45,8 +47,16 @@ class HttpTransport implements Transport {
       throw new Error('Transport not started')
     }
 
+    // Create a timeout promise
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => {
+        this.abortController?.abort()
+        reject(new Error(`Request timed out after ${this.timeout}ms`))
+      }, this.timeout)
+    })
+
     try {
-      const response = await fetch(this.serverUrl, {
+      const fetchPromise = fetch(this.serverUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,6 +65,8 @@ class HttpTransport implements Transport {
         body: JSON.stringify(message),
         signal: this.abortController.signal,
       })
+
+      const response = await Promise.race([fetchPromise, timeoutPromise]) as Response
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -119,19 +131,21 @@ class HttpTransport implements Transport {
 
 export class MCPTransport {
   private serverUrl: string
+  private timeout: number
   private retryAttempts: number
   private retryDelay: number
   private client: Client | null = null
 
   constructor(config: MCPTransportConfig) {
     this.serverUrl = config.serverUrl
+    this.timeout = config.timeout || 180000 // Default 3 minutes
     this.retryAttempts = config.retryAttempts || 3
     this.retryDelay = config.retryDelay || 1000
   }
 
   async connect(): Promise<void> {
     try {
-      const transport = new HttpTransport(this.serverUrl)
+      const transport = new HttpTransport(this.serverUrl, this.timeout)
 
       this.client = new Client({
         name: 'code-labs-web',

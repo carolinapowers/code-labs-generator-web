@@ -20,9 +20,9 @@ export class MCPClient {
 
     this.transport = getMCPTransport({
       serverUrl: this.serverUrl,
-      timeout: 30000,
-      retryAttempts: 3,
-      retryDelay: 1000,
+      timeout: 180000, // 3 minutes for long-running scaffold operations
+      retryAttempts: 2, // Reduce retries since operations are long
+      retryDelay: 2000,
     })
   }
 
@@ -90,7 +90,8 @@ export class MCPClient {
       const result = await this.transport.callTool('scaffold_react_project', {
         projectName: data.projectName,
         opportunityPath: data.opportunityPath,
-        targetDirectory: '.',
+        opportunityContent: data.opportunityContent,
+        targetDirectory: data.targetDirectory || '.',
       })
 
       return result
@@ -112,7 +113,8 @@ export class MCPClient {
       const result = await this.transport.callTool('scaffold_csharp_project', {
         projectName: data.projectName,
         opportunityPath: data.opportunityPath,
-        targetDirectory: '.',
+        opportunityContent: data.opportunityContent,
+        targetDirectory: data.targetDirectory || '.',
       })
 
       return result
@@ -134,7 +136,8 @@ export class MCPClient {
       const result = await this.transport.callTool('scaffold_go_project', {
         projectName: data.projectName,
         opportunityPath: data.opportunityPath,
-        targetDirectory: '.',
+        opportunityContent: data.opportunityContent,
+        targetDirectory: data.targetDirectory || '.',
       })
 
       return result
