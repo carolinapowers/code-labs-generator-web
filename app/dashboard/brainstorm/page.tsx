@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { LearningObjectivesForm } from '@/components/forms/LearningObjectivesForm'
 import { MarkdownRenderer } from '@/components/displays/MarkdownRenderer'
+import { useWorkflow } from '@/contexts/WorkflowContext'
 import type { BrainstormFormData } from '@/lib/validators'
 
 export default function BrainstormPage() {
@@ -11,6 +12,7 @@ export default function BrainstormPage() {
   const [error, setError] = useState<string | null>(null)
   const [cost, setCost] = useState<number | null>(null)
   const [provider, setProvider] = useState<string | null>(null)
+  const { setBrainstormContent } = useWorkflow()
 
   const handleSubmit = async (data: BrainstormFormData) => {
     setIsLoading(true)
@@ -35,6 +37,8 @@ export default function BrainstormPage() {
       setGeneratedContent(result.content)
       setCost(result.cost)
       setProvider(result.provider)
+      // Save to workflow context for use in scaffold page
+      setBrainstormContent(result.content)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred')
     } finally {
