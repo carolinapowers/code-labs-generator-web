@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ThemeToggle } from './ThemeToggle'
 
 const navigation = [
   {
@@ -35,7 +36,7 @@ export function Sidebar() {
   return (
     <div
       className={cn(
-        'relative border-r border-border-default bg-bg-sidebar transition-all duration-300',
+        'flex flex-col h-full border-r border-border-default bg-bg-sidebar transition-all duration-300',
         isCollapsed ? 'w-16' : 'w-64'
       )}
     >
@@ -54,7 +55,7 @@ export function Sidebar() {
       </button>
 
       {/* Navigation */}
-      <nav className={cn('p-6 space-y-2', isCollapsed && 'p-3')}>
+      <nav className={cn('p-6 space-y-2 flex-1 overflow-y-auto', isCollapsed && 'p-3')}>
         {navigation.map((item) => {
           const isActive = pathname === item.href
           return (
@@ -95,6 +96,22 @@ export function Sidebar() {
           )
         })}
       </nav>
+
+      {/* Theme Toggle at Bottom - Always visible */}
+      <div className={cn(
+        'border-t border-border-default p-4 flex-shrink-0',
+        isCollapsed && 'p-3 flex justify-center'
+      )}>
+        <div className={cn(
+          'flex items-center gap-3',
+          isCollapsed && 'flex-col'
+        )}>
+          <ThemeToggle />
+          {!isCollapsed && (
+            <span className="text-xs text-text-muted">Theme</span>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

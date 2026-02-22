@@ -3,7 +3,6 @@
 import { UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
 import { MCPStatus } from './MCPStatus'
-import { ThemeToggle } from './ThemeToggle'
 
 export function Header() {
   return (
@@ -16,7 +15,6 @@ export function Header() {
           </Link>
         </div>
         <div className="flex items-center space-x-4">
-          <ThemeToggle />
           <MCPStatus />
           <UserButton
             appearance={{
