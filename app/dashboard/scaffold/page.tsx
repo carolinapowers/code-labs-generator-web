@@ -65,13 +65,6 @@ export default function ScaffoldPage() {
           Generate a complete project structure with files, tests, and configuration.
           Choose your language and let AI scaffold your Code Lab project.
         </p>
-        {process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && (
-          <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <p className="text-sm text-yellow-800">
-              <strong>Demo Mode:</strong> Using mock data. Connect to MCP server for real scaffolding.
-            </p>
-          </div>
-        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

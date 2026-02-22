@@ -5,13 +5,10 @@ import { getMCPClient } from '@/lib/mcp-client'
 
 export async function POST(req: NextRequest) {
   try {
-    // Check authentication (skip in demo mode for testing)
-    const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
-    if (!isDemoMode) {
-      const { userId } = await auth()
-      if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-      }
+    // Check authentication
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Parse and validate request body
@@ -23,8 +20,7 @@ export async function POST(req: NextRequest) {
 
     // Initialize MCP client
     const mcpClient = getMCPClient({
-      serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3002',
-      demoMode: false, // Always use real MCP server now
+      serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3002/mcp',
     })
 
     // Connect if not connected
@@ -38,8 +34,20 @@ export async function POST(req: NextRequest) {
       provider
     })
 
-    // Extract content, cost, and tokens from result
-    const content = typeof result === 'string' ? result : result.content
+    // Extract content from MCP response format
+    // MCP returns: [{ type: "text", text: "..." }]
+    let content: string
+    if (typeof result === 'string') {
+      content = result
+    } else if (Array.isArray(result) && result.length > 0 && result[0].text) {
+      content = result[0].text
+    } else if (result.content) {
+      content = result.content
+    } else {
+      console.warn('Unexpected MCP brainstorm response format:', result)
+      throw new Error('Unexpected MCP response format from brainstormLabOpportunity')
+    }
+
     const actualCost = result.cost || 0
     const actualTokens = result.tokensUsed || 0
 

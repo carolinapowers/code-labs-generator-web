@@ -126,10 +126,6 @@ export class MCPClient {
    * Scaffold Go project
    */
   async scaffoldGoProject(data: ScaffoldFormData): Promise<any> {
-    if (this.demoMode) {
-      return this.generateDemoScaffoldFiles('go')
-    }
-
     if (!this.transport || !this.connected) {
       throw new Error('MCP client not connected')
     }
@@ -152,10 +148,6 @@ export class MCPClient {
    * Create step
    */
   async createStep(data: StepFormData): Promise<any> {
-    if (this.demoMode) {
-      return this.generateDemoStep(data)
-    }
-
     if (!this.transport || !this.connected) {
       throw new Error('MCP client not connected')
     }
@@ -178,10 +170,6 @@ export class MCPClient {
    * Run tests for a step
    */
   async runTests(stepNumber: number, tags?: string[]): Promise<any> {
-    if (this.demoMode) {
-      return this.generateDemoTestResults(stepNumber)
-    }
-
     if (!this.transport || !this.connected) {
       throw new Error('MCP client not connected')
     }
@@ -203,18 +191,6 @@ export class MCPClient {
    * List available tools
    */
   async listTools(): Promise<string[]> {
-    if (this.demoMode) {
-      return [
-        'brainstorm_lab_opportunity',
-        'scaffold_react_project',
-        'scaffold_csharp_project',
-        'scaffold_go_project',
-        'create_step',
-        'run_tests',
-        'add_solution',
-      ]
-    }
-
     if (!this.transport || !this.connected) {
       throw new Error('MCP client not connected')
     }
@@ -232,15 +208,18 @@ export class MCPClient {
    * Test connection to MCP server
    */
   async testConnection(): Promise<boolean> {
-    if (this.demoMode) {
-      return true
-    }
-
     if (!this.transport) {
       return false
     }
 
-    return await this.transport.testConnection()
+    try {
+      // Use the client's connect method to properly set connected flag
+      await this.connect()
+      return true
+    } catch (error) {
+      console.error('Connection test failed:', error)
+      return false
+    }
   }
 
   // Demo data generators
@@ -381,10 +360,9 @@ export function getMCPClient(config?: MCPClientConfig): MCPClient {
   }
 
   if (!mcpClientInstance) {
-    // Default to demo mode if no config provided
+    // Default config if none provided
     mcpClientInstance = new MCPClient({
-      serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3001',
-      demoMode: process.env.NEXT_PUBLIC_DEMO_MODE === 'true',
+      serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3002/mcp',
     })
   }
 

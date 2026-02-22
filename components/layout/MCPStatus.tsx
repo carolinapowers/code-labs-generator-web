@@ -3,22 +3,13 @@
 import { useMCPConnection } from '@/hooks/useMCPConnection'
 
 export function MCPStatus() {
-  const { connected, demoMode, serverUrl, isLoading } = useMCPConnection()
+  const { connected, serverUrl, isLoading } = useMCPConnection()
 
   if (isLoading) {
     return (
       <div className="flex items-center space-x-2 text-sm">
         <div className="h-2 w-2 rounded-full bg-gray-400 animate-pulse" />
         <span className="text-gray-500">Checking MCP...</span>
-      </div>
-    )
-  }
-
-  if (demoMode) {
-    return (
-      <div className="flex items-center space-x-2 text-sm">
-        <div className="h-2 w-2 rounded-full bg-yellow-400" />
-        <span className="text-yellow-700">Demo Mode</span>
       </div>
     )
   }

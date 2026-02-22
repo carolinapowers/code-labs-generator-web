@@ -50,13 +50,6 @@ export default function BrainstormPage() {
           Generate a complete LAB_OPPORTUNITY.md file from your learning objectives.
           This AI-powered tool structures your ideas into a comprehensive Code Lab plan.
         </p>
-        {process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && (
-          <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <p className="text-sm text-yellow-800">
-              <strong>Demo Mode:</strong> Using mock data. Connect to MCP server for real generation.
-            </p>
-          </div>
-        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

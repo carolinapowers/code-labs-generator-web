@@ -50,6 +50,7 @@ class HttpTransport implements Transport {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json, text/event-stream',
         },
         body: JSON.stringify(message),
         signal: this.abortController.signal,
@@ -59,11 +60,38 @@ class HttpTransport implements Transport {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      const data = await response.json()
+      // Parse SSE response from MCP server
+      // NOTE: This is a simplified SSE parser that only handles single-line 'data:' fields.
+      // It does NOT support:
+      // - Multi-line data fields (where multiple 'data:' lines should be concatenated)
+      // - Other SSE fields like 'event:', 'id:', or 'retry:'
+      // - Event types or IDs
+      // This implementation is sufficient for the current MCP server which sends simple
+      // single-line data responses. If you need full SSE spec compliance, consider using
+      // a dedicated SSE parsing library.
+      const text = await response.text()
 
-      // Handle the response through the onmessage callback
-      if (this.onmessage) {
-        this.onmessage(data)
+      // Handle empty responses (e.g., from notifications that don't expect a response)
+      if (!text || text.trim() === '') {
+        // Empty response is OK for notifications
+        return
+      }
+
+      // Extract JSON from SSE format (event: message\ndata: {...})
+      const lines = text.split('\n')
+      const dataLine = lines.find(line => line.startsWith('data: '))
+
+      if (dataLine) {
+        const jsonStr = dataLine.substring(6) // Remove 'data: ' prefix
+        const data = JSON.parse(jsonStr)
+
+        // Handle the response through the onmessage callback
+        if (this.onmessage) {
+          this.onmessage(data)
+        }
+      } else {
+        console.error('Failed to find data line in SSE response:', text)
+        throw new Error('Invalid SSE response format')
       }
     } catch (error) {
       if (this.onerror) {
@@ -175,6 +203,12 @@ export class MCPTransport {
       return tools && tools.length > 0
     } catch (error) {
       console.error('Connection test failed:', error)
+      // Ensure we disconnect even on error
+      try {
+        await this.disconnect()
+      } catch (disconnectError) {
+        // Ignore disconnect errors during cleanup
+      }
       return false
     }
   }

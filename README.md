@@ -92,14 +92,42 @@ The app works out of the box in demo mode:
 4. Click "Generate LAB_OPPORTUNITY.md"
 5. See the generated content in the preview pane
 
-### With MCP Server
+### With MCP Server (Local Development)
 
-To use the real MCP server:
+To use the real MCP server locally:
 
-1. Clone and run the [code-lab-mcp-server](https://github.com/yourusername/code-lab-mcp-server)
-2. Set `NEXT_PUBLIC_DEMO_MODE=false` in `.env.local`
-3. Set `NEXT_PUBLIC_MCP_SERVER_URL` to your MCP server URL
-4. Restart the Next.js dev server
+1. **Clone and set up the MCP server**
+
+```bash
+# In a separate terminal window
+cd ../code-lab-mcp-server
+npm install
+```
+
+2. **Start the MCP HTTP bridge server**
+
+```bash
+# From code-lab-mcp-server directory
+npm run dev:http-bridge
+# Server will start on http://localhost:3002
+```
+
+3. **Configure the web app**
+
+Update `.env.local`:
+```bash
+NEXT_PUBLIC_MCP_SERVER_URL=http://localhost:3002/mcp
+NEXT_PUBLIC_DEMO_MODE=false
+```
+
+4. **Restart the Next.js dev server**
+
+```bash
+# In the web app directory
+npm run dev
+```
+
+The web app will now connect to your local MCP server for real brainstorming functionality!
 
 ## Project Structure
 

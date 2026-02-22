@@ -10,7 +10,7 @@ export const brainstormSchema = z.object({
   skillLevel: z.enum(['Beginner', 'Intermediate', 'Advanced']).optional(),
   duration: z.string().optional(),
   technology: z.string().optional(),
-  provider: z.enum(['anthropic', 'openai', 'google', 'template']).optional().default('template'),
+  provider: z.enum(['anthropic', 'openai', 'google', 'template']).default('template'),
 })
 
 export const scaffoldSchema = z.object({

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { useProviderAvailability } from '@/hooks/useProviderAvailability'
 
 interface Props {
   onSubmit: (data: BrainstormFormData) => Promise<void>
@@ -16,13 +17,15 @@ interface Props {
 
 export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
   const [objectives, setObjectives] = useState<string[]>([''])
+  const { providers, defaultProvider, availableProviders } = useProviderAvailability()
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
-  } = useForm<BrainstormFormData>({
+    watch,
+  } = useForm({
     resolver: zodResolver(brainstormSchema),
     defaultValues: {
       title: '',
@@ -35,10 +38,19 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
     },
   })
 
-  // Initialize form value with objectives
+  const selectedProvider = watch('provider')
+
+  // Initialize form value with objectives and default provider
   useEffect(() => {
     setValue('learningObjectives', objectives)
   }, [])
+
+  // Update provider to default when available providers change
+  useEffect(() => {
+    if (defaultProvider) {
+      setValue('provider', defaultProvider)
+    }
+  }, [defaultProvider, setValue])
 
   const addObjective = () => {
     const newObjectives = [...objectives, '']
@@ -143,16 +155,54 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
         <select
           id="provider"
           {...register('provider')}
-          className="mt-2 flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ps-orange"
+          className="mt-2 flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ps-orange disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <option value="template">Template (Free)</option>
-          <option value="anthropic">Claude (Best Quality)</option>
-          <option value="openai">GPT-4 (Fast)</option>
-          <option value="google">Gemini (Economical)</option>
+          {providers.map((provider) => (
+            <option
+              key={provider.id}
+              value={provider.id}
+              disabled={!provider.available}
+            >
+              {provider.name}
+              {!provider.available && ' (API key required)'}
+            </option>
+          ))}
         </select>
-        <p className="text-sm text-gray-500 mt-1">
-          Choose AI provider for content generation or use free template mode
-        </p>
+
+        {/* Provider description and status */}
+        {selectedProvider && (() => {
+          const currentProvider = providers.find(p => p.id === selectedProvider)
+          return (
+            <div className="mt-2">
+              {currentProvider?.available ? (
+                <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-md p-2 flex items-start gap-2">
+                  <svg className="w-4 h-4 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>
+                    {currentProvider.description}
+                    {selectedProvider === 'template' && ' - No API key needed'}
+                  </span>
+                </div>
+              ) : (
+                <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-2 flex items-start gap-2">
+                  <svg className="w-4 h-4 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span>
+                    This provider requires an API key. Configure {currentProvider?.name} API key in environment variables to use this option.
+                  </span>
+                </div>
+              )}
+            </div>
+          )
+        })()}
+
+        {availableProviders.length === 1 && availableProviders[0].id === 'template' && (
+          <div className="mt-2 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-md p-2">
+            💡 <strong>Tip:</strong> Add LLM provider API keys to unlock AI-powered content generation with better customization and quality.
+          </div>
+        )}
       </div>
 
       <div>
