@@ -26,6 +26,7 @@
     "ai": "^6.0.86",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "jszip": "^3.10.1",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -42,6 +43,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
+    "@types/jszip": "^3.4.0",
     "@types/node": "^20.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
