@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 const navigation = [
   {
@@ -55,47 +56,46 @@ export function Sidebar() {
       </button>
 
       {/* Navigation */}
-      <nav className={cn('p-6 space-y-2 flex-1 overflow-y-auto', isCollapsed && 'p-3')}>
-        {navigation.map((item) => {
-          const isActive = pathname === item.href
-          return (
-            <Link
-              key={item.name}
-              href={item.disabled ? '#' : item.href}
-              className={cn(
-                'block rounded-lg text-sm font-medium transition-colors',
-                isCollapsed ? 'px-2 py-3' : 'px-4 py-3',
-                isActive
-                  ? 'bg-accent-orange text-white dark:bg-accent-hover'
-                  : item.disabled
-                  ? 'text-text-muted cursor-not-allowed'
-                  : 'text-text-primary hover:bg-bg-tertiary'
-              )}
-              onClick={(e) => item.disabled && e.preventDefault()}
-              title={isCollapsed ? item.name : undefined}
-            >
-              {isCollapsed ? (
-                <div className="flex justify-center text-xl">
-                  {item.icon}
-                </div>
-              ) : (
-                <>
-                  <div className="font-semibold flex items-center gap-2">
-                    <span className="text-xl">{item.icon}</span>
-                    {item.name}
-                  </div>
-                  <div className={cn(
-                    'text-xs mt-1',
-                    isActive ? 'text-white/80' : 'text-text-secondary'
-                  )}>
-                    {item.description}
-                  </div>
-                </>
-              )}
-            </Link>
-          )
-        })}
-      </nav>
+      <TooltipProvider delayDuration={200}>
+        <nav className={cn('p-6 space-y-2 flex-1 overflow-y-auto', isCollapsed && 'p-3')}>
+          {navigation.map((item) => {
+            const isActive = pathname === item.href
+            return (
+              <Tooltip key={item.name}>
+                <TooltipTrigger asChild>
+                  <Link
+                    href={item.disabled ? '#' : item.href}
+                    className={cn(
+                      'block rounded-lg text-sm font-medium transition-colors',
+                      isCollapsed ? 'px-2 py-3' : 'px-4 py-3',
+                      isActive
+                        ? 'bg-accent-orange text-white dark:bg-accent-hover'
+                        : item.disabled
+                        ? 'text-text-muted cursor-not-allowed'
+                        : 'text-text-primary hover:bg-bg-tertiary'
+                    )}
+                    onClick={(e) => item.disabled && e.preventDefault()}
+                  >
+                    {isCollapsed ? (
+                      <div className="flex justify-center text-xl">
+                        {item.icon}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">{item.icon}</span>
+                        <span className="font-semibold">{item.name}</span>
+                      </div>
+                    )}
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="max-w-xs">
+                  <p className="text-xs">{item.description}</p>
+                </TooltipContent>
+              </Tooltip>
+            )
+          })}
+        </nav>
+      </TooltipProvider>
 
       {/* Theme Toggle at Bottom - Always visible */}
       <div className={cn(
