@@ -5,6 +5,7 @@ import { ProjectConfigForm } from '@/components/forms/ProjectConfigForm'
 import { FileTree } from '@/components/displays/FileTree'
 import { CodePreview } from '@/components/displays/CodePreview'
 import { Button } from '@/components/ui/button'
+import { useWorkflow } from '@/contexts/WorkflowContext'
 import type { ScaffoldFormData } from '@/lib/validators'
 import type { FileTreeNode } from '@/lib/types'
 
@@ -13,6 +14,7 @@ export default function ScaffoldPage() {
   const [files, setFiles] = useState<FileTreeNode[]>([])
   const [selectedFile, setSelectedFile] = useState<FileTreeNode | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const { brainstormContent } = useWorkflow()
 
   const handleSubmit = async (data: ScaffoldFormData) => {
     setIsLoading(true)
@@ -72,7 +74,18 @@ export default function ScaffoldPage() {
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Project Configuration</h2>
-            <ProjectConfigForm onSubmit={handleSubmit} isLoading={isLoading} />
+            {brainstormContent && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-800">
+                  <strong>LAB_OPPORTUNITY.md</strong> content from Brainstorm workflow has been pre-filled below.
+                </p>
+              </div>
+            )}
+            <ProjectConfigForm
+              onSubmit={handleSubmit}
+              isLoading={isLoading}
+              initialOpportunityContent={brainstormContent}
+            />
           </div>
         </div>
 

@@ -6,14 +6,16 @@ import { scaffoldSchema, type ScaffoldFormData } from '@/lib/validators'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { LANGUAGE_OPTIONS } from '@/lib/constants'
 
 interface Props {
   onSubmit: (data: ScaffoldFormData) => Promise<void>
   isLoading?: boolean
+  initialOpportunityContent?: string | null
 }
 
-export function ProjectConfigForm({ onSubmit, isLoading }: Props) {
+export function ProjectConfigForm({ onSubmit, isLoading, initialOpportunityContent }: Props) {
   const {
     register,
     handleSubmit,
@@ -25,6 +27,7 @@ export function ProjectConfigForm({ onSubmit, isLoading }: Props) {
       projectName: '',
       language: 'typescript',
       opportunityPath: '',
+      opportunityContent: initialOpportunityContent || '',
     },
   })
 
@@ -82,7 +85,7 @@ export function ProjectConfigForm({ onSubmit, isLoading }: Props) {
 
       <div>
         <Label htmlFor="opportunityPath">
-          LAB_OPPORTUNITY.md Path (Optional)
+          LAB_OPPORTUNITY.md File Path (Optional)
         </Label>
         <Input
           id="opportunityPath"
@@ -91,11 +94,31 @@ export function ProjectConfigForm({ onSubmit, isLoading }: Props) {
           className="mt-2"
         />
         <p className="text-sm text-gray-500 mt-1">
-          Path to an existing LAB_OPPORTUNITY.md file to base the project on
+          Path to an existing LAB_OPPORTUNITY.md file on your filesystem
         </p>
         {errors.opportunityPath && (
           <p className="text-sm text-ps-error mt-1">
             {errors.opportunityPath.message}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <Label htmlFor="opportunityContent">
+          LAB_OPPORTUNITY.md Content (Optional)
+        </Label>
+        <Textarea
+          id="opportunityContent"
+          {...register('opportunityContent')}
+          placeholder="Paste your LAB_OPPORTUNITY.md content here, or it will be pre-filled if you used the Brainstorm workflow..."
+          className="mt-2 min-h-[200px] font-mono text-xs"
+        />
+        <p className="text-sm text-gray-500 mt-1">
+          Direct markdown content for the Code Lab opportunity. This will be used instead of the file path if provided.
+        </p>
+        {errors.opportunityContent && (
+          <p className="text-sm text-ps-error mt-1">
+            {errors.opportunityContent.message}
           </p>
         )}
       </div>
