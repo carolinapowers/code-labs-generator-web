@@ -1,7 +1,14 @@
+import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {
+    // Check authentication
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     // Check which API keys are configured
     const hasAnthropicKey = !!process.env.ANTHROPIC_API_KEY
     const hasOpenAIKey = !!process.env.OPENAI_API_KEY
