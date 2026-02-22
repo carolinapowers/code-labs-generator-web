@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { scaffoldSchema, type ScaffoldFormData } from '@/lib/validators'
@@ -14,28 +15,50 @@ interface Props {
   isLoading?: boolean
   initialOpportunityContent?: string | null
   initialProjectName?: string | null
+  initialLanguage?: 'typescript' | 'csharp' | 'go' | null
 }
 
 export function ProjectConfigForm({
   onSubmit,
   isLoading,
   initialOpportunityContent,
-  initialProjectName
+  initialProjectName,
+  initialLanguage
 }: Props) {
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
+    setValue,
   } = useForm<ScaffoldFormData>({
     resolver: zodResolver(scaffoldSchema),
     defaultValues: {
       projectName: initialProjectName || '',
-      language: 'typescript',
+      language: initialLanguage || 'typescript',
       opportunityPath: '',
       opportunityContent: initialOpportunityContent || '',
     },
   })
+
+  // Update form values when initial values change
+  useEffect(() => {
+    if (initialProjectName) {
+      setValue('projectName', initialProjectName)
+    }
+  }, [initialProjectName, setValue])
+
+  useEffect(() => {
+    if (initialLanguage) {
+      setValue('language', initialLanguage)
+    }
+  }, [initialLanguage, setValue])
+
+  useEffect(() => {
+    if (initialOpportunityContent) {
+      setValue('opportunityContent', initialOpportunityContent)
+    }
+  }, [initialOpportunityContent, setValue])
 
   const selectedLanguage = watch('language')
 

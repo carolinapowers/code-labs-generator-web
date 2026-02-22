@@ -16,7 +16,7 @@ export default function ScaffoldPage() {
   const [selectedFile, setSelectedFile] = useState<FileTreeNode | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [projectName, setProjectName] = useState<string>('')
-  const { brainstormContent, suggestedProjectName } = useWorkflow()
+  const { brainstormContent, suggestedProjectName, suggestedLanguage } = useWorkflow()
 
   const handleSubmit = async (data: ScaffoldFormData) => {
     setIsLoading(true)
@@ -59,8 +59,8 @@ export default function ScaffoldPage() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Scaffold Workflow</h1>
-        <p className="text-gray-600">
+        <h1 className="text-3xl font-bold text-text-primary mb-2">Scaffold Workflow</h1>
+        <p className="text-text-secondary">
           Generate a complete project structure with files, tests, and configuration.
           Choose your language and let AI scaffold your Code Lab project.
         </p>
@@ -69,11 +69,11 @@ export default function ScaffoldPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Form Section */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Project Configuration</h2>
+          <div className="bg-bg-card rounded-lg border border-border-default p-6">
+            <h2 className="text-xl font-semibold text-text-primary mb-4">Project Configuration</h2>
             {brainstormContent && (
-              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm text-green-800">
+              <div className="mb-4 p-3 bg-status-success border border-ps-success rounded-lg">
+                <p className="text-sm text-status-success">
                   <strong>LAB_OPPORTUNITY.md</strong> content from Brainstorm workflow has been pre-filled below.
                 </p>
               </div>
@@ -83,6 +83,7 @@ export default function ScaffoldPage() {
               isLoading={isLoading}
               initialOpportunityContent={brainstormContent}
               initialProjectName={suggestedProjectName}
+              initialLanguage={suggestedLanguage}
             />
           </div>
         </div>
@@ -90,27 +91,27 @@ export default function ScaffoldPage() {
         {/* File Display Section */}
         <div className="lg:col-span-2">
           {isLoading && (
-            <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ps-orange mx-auto mb-4"></div>
-              <p className="text-gray-600">Scaffolding project structure...</p>
+            <div className="bg-bg-card rounded-lg border border-border-default p-12 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-orange mx-auto mb-4"></div>
+              <p className="text-text-secondary">Scaffolding project structure...</p>
             </div>
           )}
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-              <h3 className="text-red-800 font-semibold mb-2">Error</h3>
-              <p className="text-red-700">{error}</p>
+            <div className="bg-status-error border border-ps-error rounded-lg p-6">
+              <h3 className="text-status-error font-semibold mb-2">Error</h3>
+              <p className="text-status-error">{error}</p>
             </div>
           )}
 
           {files.length > 0 && !isLoading && (
             <div className="space-y-6">
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="bg-bg-card rounded-lg border border-border-default p-6">
                 <div className="flex justify-between items-center mb-4">
                   <div>
-                    <h2 className="text-xl font-semibold text-gray-900 mb-2">Generated Project: {projectName}</h2>
+                    <h2 className="text-xl font-semibold text-text-primary mb-2">Generated Project: {projectName}</h2>
                     {stats && (
-                      <div className="flex items-center gap-6 text-sm text-gray-600">
+                      <div className="flex items-center gap-6 text-sm text-text-secondary">
                         <span>📁 {stats.totalDirectories} directories</span>
                         <span>📄 {stats.totalFiles} files</span>
                         <span>💾 {formatBytes(stats.totalSize)}</span>
@@ -122,7 +123,7 @@ export default function ScaffoldPage() {
                     Download as ZIP
                   </Button>
                 </div>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-text-muted">
                   Click on any file in the tree to preview its contents. Download the entire project as a ZIP file to get started.
                 </p>
               </div>
@@ -139,8 +140,8 @@ export default function ScaffoldPage() {
           )}
 
           {!isLoading && !error && files.length === 0 && (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
-              <p className="text-gray-500">
+            <div className="bg-bg-tertiary border border-border-subtle rounded-lg p-12 text-center">
+              <p className="text-text-muted">
                 Configure your project and click "Scaffold Project" to generate the structure
               </p>
             </div>
