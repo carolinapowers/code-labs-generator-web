@@ -44,7 +44,8 @@ export async function POST(req: NextRequest) {
     } else if (result.content) {
       content = result.content
     } else {
-      content = JSON.stringify(result)
+      console.warn('Unexpected MCP brainstorm response format:', result)
+      throw new Error('Unexpected MCP response format from brainstormLabOpportunity')
     }
 
     const actualCost = result.cost || 0

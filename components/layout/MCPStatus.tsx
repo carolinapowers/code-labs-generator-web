@@ -3,7 +3,7 @@
 import { useMCPConnection } from '@/hooks/useMCPConnection'
 
 export function MCPStatus() {
-  const { connected,  serverUrl, isLoading } = useMCPConnection()
+  const { connected, serverUrl, isLoading } = useMCPConnection()
 
   if (isLoading) {
     return (

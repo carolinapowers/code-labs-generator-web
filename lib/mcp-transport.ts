@@ -61,6 +61,14 @@ class HttpTransport implements Transport {
       }
 
       // Parse SSE response from MCP server
+      // NOTE: This is a simplified SSE parser that only handles single-line 'data:' fields.
+      // It does NOT support:
+      // - Multi-line data fields (where multiple 'data:' lines should be concatenated)
+      // - Other SSE fields like 'event:', 'id:', or 'retry:'
+      // - Event types or IDs
+      // This implementation is sufficient for the current MCP server which sends simple
+      // single-line data responses. If you need full SSE spec compliance, consider using
+      // a dedicated SSE parsing library.
       const text = await response.text()
 
       // Handle empty responses (e.g., from notifications that don't expect a response)
@@ -190,11 +198,17 @@ export class MCPTransport {
   async testConnection(): Promise<boolean> {
     try {
       await this.connect()
-      // Just test that we can list tools, don't disconnect yet
-      await this.listTools()
-      return true
+      const tools = await this.listTools()
+      await this.disconnect()
+      return tools && tools.length > 0
     } catch (error) {
       console.error('Connection test failed:', error)
+      // Ensure we disconnect even on error
+      try {
+        await this.disconnect()
+      } catch (disconnectError) {
+        // Ignore disconnect errors during cleanup
+      }
       return false
     }
   }

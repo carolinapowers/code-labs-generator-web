@@ -170,30 +170,33 @@ export function LearningObjectivesForm({ onSubmit, isLoading }: Props) {
         </select>
 
         {/* Provider description and status */}
-        {selectedProvider && (
-          <div className="mt-2">
-            {providers.find(p => p.id === selectedProvider)?.available ? (
-              <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-md p-2 flex items-start gap-2">
-                <svg className="w-4 h-4 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span>
-                  {providers.find(p => p.id === selectedProvider)?.description}
-                  {selectedProvider === 'template' && ' - No API key needed'}
-                </span>
-              </div>
-            ) : (
-              <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-2 flex items-start gap-2">
-                <svg className="w-4 h-4 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-                <span>
-                  This provider requires an API key. Configure {providers.find(p => p.id === selectedProvider)?.name} API key in environment variables to use this option.
-                </span>
-              </div>
-            )}
-          </div>
-        )}
+        {selectedProvider && (() => {
+          const currentProvider = providers.find(p => p.id === selectedProvider)
+          return (
+            <div className="mt-2">
+              {currentProvider?.available ? (
+                <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-md p-2 flex items-start gap-2">
+                  <svg className="w-4 h-4 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>
+                    {currentProvider.description}
+                    {selectedProvider === 'template' && ' - No API key needed'}
+                  </span>
+                </div>
+              ) : (
+                <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-2 flex items-start gap-2">
+                  <svg className="w-4 h-4 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span>
+                    This provider requires an API key. Configure {currentProvider?.name} API key in environment variables to use this option.
+                  </span>
+                </div>
+              )}
+            </div>
+          )
+        })()}
 
         {availableProviders.length === 1 && availableProviders[0].id === 'template' && (
           <div className="mt-2 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-md p-2">

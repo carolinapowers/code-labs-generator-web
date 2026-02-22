@@ -75,14 +75,7 @@ export function useProviderAvailability(): ProviderAvailability {
   ]
 
   const availableProviders = providers.filter(p => p.available)
-  const firstAvailable = availableProviders[0]?.id
-  const defaultProvider: ProviderId =
-    firstAvailable === 'anthropic' ||
-    firstAvailable === 'openai' ||
-    firstAvailable === 'google' ||
-    firstAvailable === 'template'
-      ? firstAvailable
-      : 'template'
+  const defaultProvider: ProviderId = availableProviders[0]?.id ?? 'template'
 
   return {
     providers,
