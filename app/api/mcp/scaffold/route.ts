@@ -1,8 +1,8 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { scaffoldSchema } from '@/lib/validators'
-import { getMCPClient } from '@/lib/mcp-client'
 import { FileTreeNode } from '@/lib/types'
+import { scaffold } from '@/lib/scaffold'
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,40 +16,26 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const validatedData = scaffoldSchema.parse(body)
 
-    // Initialize MCP client
-    const mcpClient = getMCPClient({
-      serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3002/mcp',
+    console.log('Scaffolding project:', validatedData.projectName, 'Language:', validatedData.language)
+
+    // Generate project files in-memory using our scaffold library
+    // No MCP server, no filesystem I/O, pure in-memory generation
+    const result = await scaffold({
+      projectName: validatedData.projectName,
+      language: validatedData.language,
+      opportunityContent: validatedData.opportunityContent,
     })
 
-    // Connect if not connected
-    if (!mcpClient.isConnected()) {
-      await mcpClient.connect()
-    }
-
-    // Call appropriate scaffold tool based on language
-    let result: any
-    switch (validatedData.language) {
-      case 'typescript':
-        result = await mcpClient.scaffoldReactProject(validatedData)
-        break
-      case 'csharp':
-        result = await mcpClient.scaffoldCSharpProject(validatedData)
-        break
-      case 'go':
-        result = await mcpClient.scaffoldGoProject(validatedData)
-        break
-      default:
-        throw new Error(`Unsupported language: ${validatedData.language}`)
-    }
+    console.log(`Generated ${result.files.length} files for project: ${validatedData.projectName}`)
 
     // Convert flat file list to tree structure
-    const fileTree = buildFileTree(result.files || [])
+    const fileTree = buildFileTree(result.files)
 
     return NextResponse.json({
       success: true,
-      files: result.files || [],
+      files: result.files,
       fileTree,
-      message: result.message || 'Project scaffolded successfully',
+      message: result.message,
     })
   } catch (error) {
     console.error('Scaffold API error:', error)
@@ -76,40 +62,58 @@ export async function POST(req: NextRequest) {
 
 // Helper function to build file tree from flat file list
 function buildFileTree(files: any[]): FileTreeNode[] {
-  const root: Record<string, FileTreeNode> = {}
+  const root: Record<string, any> = {}
 
   files.forEach((file) => {
     const parts = file.path.split('/')
     let currentLevel = root
 
     parts.forEach((part: string, index: number) => {
+      const isFile = index === parts.length - 1
+
       if (!currentLevel[part]) {
-        const isFile = index === parts.length - 1
-
-        currentLevel[part] = {
-          name: part,
-          path: parts.slice(0, index + 1).join('/'),
-          type: isFile ? 'file' : 'directory',
-          content: isFile ? file.content : undefined,
-          children: isFile ? undefined : [],
+        if (isFile) {
+          currentLevel[part] = {
+            name: part,
+            path: parts.slice(0, index + 1).join('/'),
+            type: 'file',
+            content: file.content,
+          }
+        } else {
+          currentLevel[part] = {
+            name: part,
+            path: parts.slice(0, index + 1).join('/'),
+            type: 'directory',
+            _children: {},
+          }
         }
+      }
 
-        if (!isFile) {
-          // Create a new level for directory children
-          const children: Record<string, FileTreeNode> = {}
-          currentLevel[part].children = Object.values(children)
-          currentLevel = children
-        }
-      } else if (index < parts.length - 1) {
-        // Move to next level for directories
-        const children: Record<string, FileTreeNode> = {}
-        currentLevel[part].children?.forEach((child) => {
-          children[child.name] = child
-        })
-        currentLevel = children
+      // Navigate to next level for directories
+      if (!isFile) {
+        currentLevel = currentLevel[part]._children
       }
     })
   })
 
-  return Object.values(root)
+  // Convert the nested structure with _children to proper children arrays
+  function convertToTree(node: any): FileTreeNode {
+    if (node.type === 'file') {
+      return {
+        name: node.name,
+        path: node.path,
+        type: 'file',
+        content: node.content,
+      }
+    }
+
+    return {
+      name: node.name,
+      path: node.path,
+      type: 'directory',
+      children: Object.values(node._children).map((child: any) => convertToTree(child)),
+    }
+  }
+
+  return Object.values(root).map((node: any) => convertToTree(node))
 }
