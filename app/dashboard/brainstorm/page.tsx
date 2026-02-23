@@ -24,27 +24,31 @@ export default function BrainstormPage() {
       // Call MCP tool through proxy
       const response = await brainstormLabOpportunity(data)
 
-      if (!response.success || !response.result) {
+      if (!response.success) {
         throw new Error(response.error || 'Failed to generate LAB_OPPORTUNITY.md')
       }
 
       // Extract content from MCP response format
       // MCP returns: [{ type: "text", text: "..." }]
       let content: string
-      const result = response.result
+      const result = (response as any).result // Proxy returns 'result', not 'data'
+
+      if (!result) {
+        throw new Error('No result returned from MCP server')
+      }
 
       if (typeof result === 'string') {
         content = result
       } else if (Array.isArray(result) && result.length > 0 && result[0].text) {
         content = result[0].text
-      } else if (result.content) {
-        content = result.content
+      } else if ((result as any).content) {
+        content = (result as any).content
       } else {
         throw new Error('Unexpected MCP response format')
       }
 
       setGeneratedContent(content)
-      setCost(response.cost || 0)
+      setCost((response as any).cost || 0)
       setProvider(data.provider || 'template')
 
       // Save to workflow context for use in scaffold and develop pages

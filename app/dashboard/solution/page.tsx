@@ -28,52 +28,12 @@ export default function GenerateSolutionPage() {
         data.tasks
       )
 
-      if (!response.success || !response.result) {
+      if (!response.success || !response.data) {
         throw new Error(response.error || 'Failed to generate solution')
       }
 
-      // Extract file from MCP response
-      const result = response.result
-      let fileData: GeneratedFile
-
-      if (Array.isArray(result) && result.length > 0) {
-        const textContent = result[0].text || result[0].content
-
-        // Check if it's an error message
-        if (typeof textContent === 'string' && textContent.startsWith('Error')) {
-          throw new Error(textContent)
-        }
-
-        // Try to parse JSON from MCP text response
-        let parsed: any
-        try {
-          parsed = typeof textContent === 'string' ? JSON.parse(textContent) : textContent
-        } catch (parseError) {
-          console.error('Failed to parse MCP response:', textContent)
-          throw new Error(`Invalid response format: ${parseError instanceof Error ? parseError.message : 'Parse failed'}`)
-        }
-
-        if (!parsed.filename || !parsed.content) {
-          throw new Error('Response missing required fields (filename, content)')
-        }
-
-        fileData = {
-          filename: parsed.filename,
-          content: parsed.content,
-          language: 'markdown'
-        }
-      } else if (result.filename && result.content) {
-        fileData = {
-          filename: result.filename,
-          content: result.content,
-          language: 'markdown'
-        }
-      } else {
-        console.error('Unexpected MCP response format:', result)
-        throw new Error('Unexpected MCP response format')
-      }
-
-      setFile(fileData)
+      // Response is now standardized - no complex parsing needed
+      setFile(response.data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate solution content')
     } finally {

@@ -5,6 +5,7 @@
 
 import { MCPTransport, getMCPTransport } from './mcp-transport'
 import { BrainstormFormData, ScaffoldFormData } from './types'
+import { mcpLogger } from './logger'
 
 export interface MCPClientConfig {
   serverUrl: string
@@ -34,9 +35,9 @@ export class MCPClient {
     try {
       await this.transport.connect()
       this.connected = true
-      console.log('Connected to MCP server at:', this.serverUrl)
+      mcpLogger.info(`Connected to MCP server at: ${this.serverUrl}`)
     } catch (error) {
-      console.error('Failed to connect to MCP server:', error)
+      mcpLogger.error('Failed to connect to MCP server:', error)
       throw error
     }
   }
@@ -73,7 +74,7 @@ export class MCPClient {
 
       return result.content || result
     } catch (error) {
-      console.error('Brainstorm tool call failed:', error)
+      mcpLogger.error('Brainstorm tool call failed:', error)
       throw error
     }
   }
@@ -96,7 +97,7 @@ export class MCPClient {
 
       return result
     } catch (error) {
-      console.error('Scaffold React project failed:', error)
+      mcpLogger.error('Scaffold React project failed:', error)
       throw error
     }
   }
@@ -119,7 +120,7 @@ export class MCPClient {
 
       return result
     } catch (error) {
-      console.error('Scaffold C# project failed:', error)
+      mcpLogger.error('Scaffold C# project failed:', error)
       throw error
     }
   }
@@ -142,7 +143,7 @@ export class MCPClient {
 
       return result
     } catch (error) {
-      console.error('Scaffold Go project failed:', error)
+      mcpLogger.error('Scaffold Go project failed:', error)
       throw error
     }
   }
@@ -151,27 +152,24 @@ export class MCPClient {
    * Generate step content (web-optimized - no file creation)
    */
   async generateStepContent(stepNumber: number, title: string, tasks: string[]): Promise<any> {
-    console.log('[MCP Client] generateStepContent called with:', { stepNumber, title, tasks })
+    mcpLogger.debug('generateStepContent called', { stepNumber, title, taskCount: tasks.length })
 
     if (!this.transport || !this.connected) {
-      console.error('[MCP Client] Not connected to transport')
+      mcpLogger.error('Not connected to transport')
       throw new Error('MCP client not connected')
     }
 
     try {
-      console.log('[MCP Client] Calling transport.callTool for generate_step_content')
       const result = await this.transport.callTool('generate_step_content', {
         stepNumber,
         title,
         tasks,
       })
 
-      console.log('[MCP Client] generate_step_content result:', typeof result, Array.isArray(result) ? '(array)' : '')
-      console.log('[MCP Client] Result preview:', JSON.stringify(result).substring(0, 300))
-
+      mcpLogger.debug('generate_step_content completed successfully')
       return result
     } catch (error) {
-      console.error('[MCP Client] Generate step content failed:', error)
+      mcpLogger.error('Generate step content failed:', error)
       throw error
     }
   }
@@ -193,7 +191,7 @@ export class MCPClient {
 
       return result
     } catch (error) {
-      console.error('Generate tests content failed:', error)
+      mcpLogger.error('Generate tests content failed:', error)
       throw error
     }
   }
@@ -215,7 +213,7 @@ export class MCPClient {
 
       return result
     } catch (error) {
-      console.error('Generate solution content failed:', error)
+      mcpLogger.error('Generate solution content failed:', error)
       throw error
     }
   }
@@ -236,7 +234,7 @@ export class MCPClient {
 
       return result
     } catch (error) {
-      console.error('Run tests failed:', error)
+      mcpLogger.error('Run tests failed:', error)
       throw error
     }
   }
@@ -253,7 +251,7 @@ export class MCPClient {
       const tools = await this.transport.listTools()
       return tools.map((tool: any) => tool.name)
     } catch (error) {
-      console.error('List tools failed:', error)
+      mcpLogger.error('List tools failed:', error)
       throw error
     }
   }
@@ -271,7 +269,7 @@ export class MCPClient {
       await this.connect()
       return true
     } catch (error) {
-      console.error('Connection test failed:', error)
+      mcpLogger.error('Connection test failed:', error)
       return false
     }
   }

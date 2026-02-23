@@ -17,90 +17,22 @@ export default function GenerateTestsPage() {
   const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (data: StepDetailsFormData) => {
-    console.log('[Tests Page] Form submitted with data:', data)
     setLoading(true)
     setError(null)
 
     try {
-      // Call MCP tool through proxy
-      console.log('[Tests Page] Calling generateTestsContent...')
       const response = await generateTestsContent(
         data.stepNumber,
         data.title,
         data.tasks
       )
 
-      console.log('[Tests Page] Response received:', {
-        success: response.success,
-        hasResult: !!response.result,
-        error: response.error
-      })
-
-      if (!response.success || !response.result) {
-        console.error('[Tests Page] Response failed:', response.error)
+      if (!response.success || !response.data) {
         throw new Error(response.error || 'Failed to generate tests')
       }
 
-      console.log('[Tests Page] Processing response result...')
-
-      // Extract file from MCP response
-      const result = response.result
-      console.log('[Tests Page] Result type:', typeof result, Array.isArray(result) ? `(array of ${result.length})` : '')
-      console.log('[Tests Page] Result structure:', JSON.stringify(result).substring(0, 200))
-
-      let fileData: GeneratedFile
-
-      if (Array.isArray(result) && result.length > 0) {
-        console.log('[Tests Page] Processing array result')
-        const textContent = result[0].text || result[0].content
-        console.log('[Tests Page] Text content type:', typeof textContent)
-        console.log('[Tests Page] Text content preview:', typeof textContent === 'string' ? textContent.substring(0, 100) : textContent)
-
-        // Check if it's an error message
-        if (typeof textContent === 'string' && textContent.startsWith('Error')) {
-          console.error('[Tests Page] Error message in response:', textContent)
-          throw new Error(textContent)
-        }
-
-        // Try to parse JSON from MCP text response
-        let parsed: any
-        try {
-          console.log('[Tests Page] Attempting to parse JSON...')
-          parsed = typeof textContent === 'string' ? JSON.parse(textContent) : textContent
-          console.log('[Tests Page] Parsed successfully:', Object.keys(parsed))
-        } catch (parseError) {
-          console.error('[Tests Page] JSON parse failed!')
-          console.error('[Tests Page] Failed content:', textContent)
-          throw new Error(`Invalid response format: ${parseError instanceof Error ? parseError.message : 'Parse failed'}`)
-        }
-
-        if (!parsed.filename || !parsed.content) {
-          console.error('[Tests Page] Missing required fields in parsed data:', Object.keys(parsed))
-          throw new Error('Response missing required fields (filename, content)')
-        }
-
-        fileData = {
-          filename: parsed.filename,
-          content: parsed.content,
-          language: 'markdown'
-        }
-        console.log('[Tests Page] File data created:', { filename: fileData.filename, contentLength: fileData.content.length })
-      } else if (result.filename && result.content) {
-        console.log('[Tests Page] Using direct result format')
-        fileData = {
-          filename: result.filename,
-          content: result.content,
-          language: 'markdown'
-        }
-      } else {
-        console.error('[Tests Page] Unexpected MCP response format!')
-        console.error('[Tests Page] Result:', result)
-        throw new Error('Unexpected MCP response format')
-      }
-
-      console.log('[Tests Page] Setting file state with:', fileData.filename)
-      setFile(fileData)
-      console.log('[Tests Page] Success! File state updated')
+      // Response is now standardized - no complex parsing needed
+      setFile(response.data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate tests content')
     } finally {

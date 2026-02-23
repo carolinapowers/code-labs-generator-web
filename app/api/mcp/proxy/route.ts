@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { getMCPClient } from '@/lib/mcp-client'
+import { mcpLogger } from '@/lib/logger'
 
 /**
  * MCP Proxy Route
@@ -43,7 +44,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<MCPProxyRespo
     // Check authentication
     const { userId } = await auth()
     if (!userId) {
-      console.error('[MCP Proxy] Unauthorized request')
+      mcpLogger.error(' Unauthorized request')
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -54,12 +55,12 @@ export async function POST(req: NextRequest): Promise<NextResponse<MCPProxyRespo
     const body: MCPProxyRequest = await req.json()
     toolName = body.tool || 'unknown'
 
-    console.log(`[MCP Proxy] ========================================`)
-    console.log(`[MCP Proxy] Received request for tool: ${toolName}`)
-    console.log(`[MCP Proxy] Params:`, JSON.stringify(body.params, null, 2))
+    mcpLogger.debug(` ========================================`)
+    mcpLogger.debug(` Received request for tool: ${toolName}`)
+    mcpLogger.debug(` Params:`, JSON.stringify(body.params, null, 2))
 
     if (!body.tool) {
-      console.error('[MCP Proxy] Missing tool name in request')
+      mcpLogger.error(' Missing tool name in request')
       return NextResponse.json(
         { success: false, error: 'Tool name is required' },
         { status: 400 }
@@ -68,7 +69,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<MCPProxyRespo
 
     // Initialize MCP client
     const serverUrl = process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3002/mcp'
-    console.log(`[MCP Proxy] Initializing MCP client with server: ${serverUrl}`)
+    mcpLogger.debug(` Initializing MCP client with server: ${serverUrl}`)
 
     const mcpClient = getMCPClient({
       serverUrl,
@@ -87,7 +88,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<MCPProxyRespo
 
     // Route to appropriate MCP tool
     // Note: The MCP client methods handle the actual MCP protocol communication
-    console.log(`[MCP Proxy] Routing to tool handler: ${body.tool}`)
+    mcpLogger.debug(` Routing to tool handler: ${body.tool}`)
     switch (body.tool) {
       case 'brainstorm_lab_opportunity':
         result = await mcpClient.brainstormLabOpportunity(body.params)
@@ -138,7 +139,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<MCPProxyRespo
         break
 
       default:
-        console.error(`[MCP Proxy] Unknown tool requested: ${body.tool}`)
+        mcpLogger.error(` Unknown tool requested: ${body.tool}`)
         return NextResponse.json(
           {
             success: false,
@@ -149,9 +150,9 @@ export async function POST(req: NextRequest): Promise<NextResponse<MCPProxyRespo
     }
 
     const duration = Date.now() - startTime
-    console.log(`[MCP Proxy] Tool ${toolName} executed successfully in ${duration}ms`)
-    console.log(`[MCP Proxy] Result type:`, typeof result, Array.isArray(result) ? '(array)' : '')
-    console.log(`[MCP Proxy] Result preview:`, JSON.stringify(result).substring(0, 200))
+    mcpLogger.debug(` Tool ${toolName} executed successfully in ${duration}ms`)
+    mcpLogger.debug(` Result type:`, typeof result, Array.isArray(result) ? '(array)' : '')
+    mcpLogger.debug(` Result preview:`, JSON.stringify(result).substring(0, 200))
 
     return NextResponse.json({
       success: true,
@@ -160,12 +161,12 @@ export async function POST(req: NextRequest): Promise<NextResponse<MCPProxyRespo
     })
   } catch (error) {
     const duration = Date.now() - startTime
-    console.error(`[MCP Proxy] ========================================`)
-    console.error(`[MCP Proxy] Error executing tool ${toolName} after ${duration}ms`)
-    console.error(`[MCP Proxy] Error type:`, error?.constructor?.name)
-    console.error(`[MCP Proxy] Error message:`, error instanceof Error ? error.message : error)
-    console.error(`[MCP Proxy] Full error:`, error)
-    console.error(`[MCP Proxy] Stack trace:`, error instanceof Error ? error.stack : 'N/A')
+    mcpLogger.error(` ========================================`)
+    mcpLogger.error(` Error executing tool ${toolName} after ${duration}ms`)
+    mcpLogger.error(` Error type:`, error?.constructor?.name)
+    mcpLogger.error(` Error message:`, error instanceof Error ? error.message : error)
+    mcpLogger.error(` Full error:`, error)
+    mcpLogger.error(` Stack trace:`, error instanceof Error ? error.stack : 'N/A')
 
     if (error instanceof Error) {
       return NextResponse.json(
@@ -228,7 +229,7 @@ export async function GET(): Promise<NextResponse> {
       toolCount: tools.length,
     })
   } catch (error) {
-    console.error('MCP connection test error:', error)
+    mcpLogger.error('MCP connection test error:', error)
 
     return NextResponse.json(
       {

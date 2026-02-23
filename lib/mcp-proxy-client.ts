@@ -6,16 +6,10 @@
  * to interact with the MCP server.
  */
 
-import { BrainstormFormData, ScaffoldFormData } from './types'
+import { BrainstormFormData, ScaffoldFormData, StandardMCPResponse, GeneratedStepFile } from './types'
 
-export interface MCPProxyResponse<T = any> {
-  success: boolean
-  result?: T
-  error?: string
-  tool?: string
-  cost?: number
-  tokensUsed?: number
-}
+// Re-export for backward compatibility
+export type MCPProxyResponse<T = any> = StandardMCPResponse<T>
 
 /**
  * Call an MCP tool through the proxy
@@ -146,12 +140,33 @@ export async function generateStepContent(
   stepNumber: number,
   title: string,
   tasks: string[]
-): Promise<MCPProxyResponse<any>> {
-  return callMCPTool('generate_step_content', {
-    stepNumber,
-    title,
-    tasks,
-  })
+): Promise<StandardMCPResponse<GeneratedStepFile>> {
+  try {
+    const response = await fetch('/api/mcp/generate-step', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ stepNumber, title, tasks }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: data.error || `HTTP error! status: ${response.status}`,
+      }
+    }
+
+    return data
+  } catch (error) {
+    console.error('Generate step content failed:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
 }
 
 /**
@@ -161,12 +176,33 @@ export async function generateTestsContent(
   stepNumber: number,
   title: string,
   tasks: string[]
-): Promise<MCPProxyResponse<any>> {
-  return callMCPTool('generate_tests_content', {
-    stepNumber,
-    title,
-    tasks,
-  })
+): Promise<StandardMCPResponse<GeneratedStepFile>> {
+  try {
+    const response = await fetch('/api/mcp/generate-tests', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ stepNumber, title, tasks }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: data.error || `HTTP error! status: ${response.status}`,
+      }
+    }
+
+    return data
+  } catch (error) {
+    console.error('Generate tests content failed:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
 }
 
 /**
@@ -176,12 +212,33 @@ export async function generateSolutionContent(
   stepNumber: number,
   title: string,
   tasks: string[]
-): Promise<MCPProxyResponse<any>> {
-  return callMCPTool('generate_solution_content', {
-    stepNumber,
-    title,
-    tasks,
-  })
+): Promise<StandardMCPResponse<GeneratedStepFile>> {
+  try {
+    const response = await fetch('/api/mcp/generate-solution', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ stepNumber, title, tasks }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: data.error || `HTTP error! status: ${response.status}`,
+      }
+    }
+
+    return data
+  } catch (error) {
+    console.error('Generate solution content failed:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    }
+  }
 }
 
 /**
