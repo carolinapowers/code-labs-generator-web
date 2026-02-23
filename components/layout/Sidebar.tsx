@@ -22,11 +22,22 @@ const navigation = [
     icon: '🏗️',
   },
   {
-    name: 'Develop',
-    href: '/dashboard/develop',
-    description: 'Coming soon - Create steps and tests',
-    icon: '⚙️',
-    disabled: true,
+    name: 'Create Step',
+    href: '/dashboard/create',
+    description: 'Generate step markdown with tasks and instructions',
+    icon: '📝',
+  },
+  {
+    name: 'Generate Tests',
+    href: '/dashboard/tests',
+    description: 'Generate test scaffolding for step validation',
+    icon: '🧪',
+  },
+  {
+    name: 'Generate Solution',
+    href: '/dashboard/solution',
+    description: 'Generate solution template for Claude Code',
+    icon: '✅',
   },
 ]
 
@@ -64,17 +75,14 @@ export function Sidebar() {
               <Tooltip key={item.name}>
                 <TooltipTrigger asChild>
                   <Link
-                    href={item.disabled ? '#' : item.href}
+                    href={item.href}
                     className={cn(
                       'block rounded-lg text-sm font-medium transition-colors',
                       isCollapsed ? 'px-2 py-3' : 'px-4 py-3',
                       isActive
                         ? 'bg-accent-orange text-white dark:bg-accent-hover'
-                        : item.disabled
-                        ? 'text-text-muted cursor-not-allowed'
                         : 'text-text-primary hover:bg-bg-tertiary'
                     )}
-                    onClick={(e) => item.disabled && e.preventDefault()}
                   >
                     {isCollapsed ? (
                       <div className="flex justify-center text-xl">
