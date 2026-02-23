@@ -4,7 +4,7 @@
  */
 
 import { MCPTransport, getMCPTransport } from './mcp-transport'
-import { BrainstormFormData, ScaffoldFormData, StepFormData } from './types'
+import { BrainstormFormData, ScaffoldFormData } from './types'
 
 export interface MCPClientConfig {
   serverUrl: string
@@ -148,23 +148,74 @@ export class MCPClient {
   }
 
   /**
-   * Create step
+   * Generate step content (web-optimized - no file creation)
    */
-  async createStep(data: StepFormData): Promise<any> {
+  async generateStepContent(stepNumber: number, title: string, tasks: string[]): Promise<any> {
+    console.log('[MCP Client] generateStepContent called with:', { stepNumber, title, tasks })
+
+    if (!this.transport || !this.connected) {
+      console.error('[MCP Client] Not connected to transport')
+      throw new Error('MCP client not connected')
+    }
+
+    try {
+      console.log('[MCP Client] Calling transport.callTool for generate_step_content')
+      const result = await this.transport.callTool('generate_step_content', {
+        stepNumber,
+        title,
+        tasks,
+      })
+
+      console.log('[MCP Client] generate_step_content result:', typeof result, Array.isArray(result) ? '(array)' : '')
+      console.log('[MCP Client] Result preview:', JSON.stringify(result).substring(0, 300))
+
+      return result
+    } catch (error) {
+      console.error('[MCP Client] Generate step content failed:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Generate tests content (web-optimized - no file creation)
+   */
+  async generateTestsContent(stepNumber: number, title: string, tasks: string[]): Promise<any> {
     if (!this.transport || !this.connected) {
       throw new Error('MCP client not connected')
     }
 
     try {
-      const result = await this.transport.callTool('create_step', {
-        stepNumber: data.stepNumber,
-        title: data.title,
-        tasks: data.tasks,
+      const result = await this.transport.callTool('generate_tests_content', {
+        stepNumber,
+        title,
+        tasks,
       })
 
       return result
     } catch (error) {
-      console.error('Create step failed:', error)
+      console.error('Generate tests content failed:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Generate solution content (web-optimized - no file creation)
+   */
+  async generateSolutionContent(stepNumber: number, title: string, tasks: string[]): Promise<any> {
+    if (!this.transport || !this.connected) {
+      throw new Error('MCP client not connected')
+    }
+
+    try {
+      const result = await this.transport.callTool('generate_solution_content', {
+        stepNumber,
+        title,
+        tasks,
+      })
+
+      return result
+    } catch (error) {
+      console.error('Generate solution content failed:', error)
       throw error
     }
   }
@@ -329,27 +380,6 @@ go 1.21`
         content,
       })),
       message: `Successfully scaffolded ${language} project`,
-    }
-  }
-
-  private generateDemoStep(data: StepFormData): any {
-    return {
-      stepFile: `# Step ${data.stepNumber}: ${data.title}\n\n${data.tasks
-        .map(t => `- [ ] ${t.title}`)
-        .join('\n')}`,
-      solutionFile: `# Solution ${data.stepNumber}\n\nImplementation details...`,
-      testFile: `// Test file for step ${data.stepNumber}\ntest('${data.title}', () => {})`,
-    }
-  }
-
-  private generateDemoTestResults(stepNumber: number): any {
-    return {
-      passed: Math.random() > 0.3,
-      tests: [
-        { name: `Test ${stepNumber}.1`, passed: true },
-        { name: `Test ${stepNumber}.2`, passed: Math.random() > 0.5 },
-      ],
-      output: `Running tests for step ${stepNumber}...\nTest execution complete.`,
     }
   }
 }

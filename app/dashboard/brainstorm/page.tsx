@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { LearningObjectivesForm } from '@/components/forms/LearningObjectivesForm'
 import { MarkdownRenderer } from '@/components/displays/MarkdownRenderer'
 import { useWorkflow } from '@/contexts/WorkflowContext'
+import { brainstormLabOpportunity } from '@/lib/mcp-proxy-client'
 import type { BrainstormFormData } from '@/lib/validators'
 
 export default function BrainstormPage() {
@@ -20,25 +21,34 @@ export default function BrainstormPage() {
     setGeneratedContent(null)
 
     try {
-      const response = await fetch('/api/mcp/brainstorm', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
+      // Call MCP tool through proxy
+      const response = await brainstormLabOpportunity(data)
 
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to generate LAB_OPPORTUNITY.md')
+      if (!response.success || !response.result) {
+        throw new Error(response.error || 'Failed to generate LAB_OPPORTUNITY.md')
       }
 
-      setGeneratedContent(result.content)
-      setCost(result.cost)
-      setProvider(result.provider)
-      // Save to workflow context for use in scaffold page
-      setBrainstormContent(result.content)
+      // Extract content from MCP response format
+      // MCP returns: [{ type: "text", text: "..." }]
+      let content: string
+      const result = response.result
+
+      if (typeof result === 'string') {
+        content = result
+      } else if (Array.isArray(result) && result.length > 0 && result[0].text) {
+        content = result[0].text
+      } else if (result.content) {
+        content = result.content
+      } else {
+        throw new Error('Unexpected MCP response format')
+      }
+
+      setGeneratedContent(content)
+      setCost(response.cost || 0)
+      setProvider(data.provider || 'template')
+
+      // Save to workflow context for use in scaffold and develop pages
+      setBrainstormContent(content)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred')
     } finally {
