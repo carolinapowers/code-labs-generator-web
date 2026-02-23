@@ -4,7 +4,8 @@
  */
 
 import { MCPTransport, getMCPTransport } from './mcp-transport'
-import { BrainstormFormData, ScaffoldFormData, StepFormData } from './types'
+import { BrainstormFormData, ScaffoldFormData } from './types'
+import { mcpLogger } from './logger'
 
 export interface MCPClientConfig {
   serverUrl: string
@@ -34,9 +35,9 @@ export class MCPClient {
     try {
       await this.transport.connect()
       this.connected = true
-      console.log('Connected to MCP server at:', this.serverUrl)
+      mcpLogger.info(`Connected to MCP server at: ${this.serverUrl}`)
     } catch (error) {
-      console.error('Failed to connect to MCP server:', error)
+      mcpLogger.error('Failed to connect to MCP server:', error)
       throw error
     }
   }
@@ -73,7 +74,7 @@ export class MCPClient {
 
       return result.content || result
     } catch (error) {
-      console.error('Brainstorm tool call failed:', error)
+      mcpLogger.error('Brainstorm tool call failed:', error)
       throw error
     }
   }
@@ -96,7 +97,7 @@ export class MCPClient {
 
       return result
     } catch (error) {
-      console.error('Scaffold React project failed:', error)
+      mcpLogger.error('Scaffold React project failed:', error)
       throw error
     }
   }
@@ -119,7 +120,7 @@ export class MCPClient {
 
       return result
     } catch (error) {
-      console.error('Scaffold C# project failed:', error)
+      mcpLogger.error('Scaffold C# project failed:', error)
       throw error
     }
   }
@@ -142,29 +143,77 @@ export class MCPClient {
 
       return result
     } catch (error) {
-      console.error('Scaffold Go project failed:', error)
+      mcpLogger.error('Scaffold Go project failed:', error)
       throw error
     }
   }
 
   /**
-   * Create step
+   * Generate step content (web-optimized - no file creation)
    */
-  async createStep(data: StepFormData): Promise<any> {
+  async generateStepContent(stepNumber: number, title: string, tasks: string[]): Promise<any> {
+    mcpLogger.debug('generateStepContent called', { stepNumber, title, taskCount: tasks.length })
+
+    if (!this.transport || !this.connected) {
+      mcpLogger.error('Not connected to transport')
+      throw new Error('MCP client not connected')
+    }
+
+    try {
+      const result = await this.transport.callTool('generate_step_content', {
+        stepNumber,
+        title,
+        tasks,
+      })
+
+      mcpLogger.debug('generate_step_content completed successfully')
+      return result
+    } catch (error) {
+      mcpLogger.error('Generate step content failed:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Generate tests content (web-optimized - no file creation)
+   */
+  async generateTestsContent(stepNumber: number, title: string, tasks: string[]): Promise<any> {
     if (!this.transport || !this.connected) {
       throw new Error('MCP client not connected')
     }
 
     try {
-      const result = await this.transport.callTool('create_step', {
-        stepNumber: data.stepNumber,
-        title: data.title,
-        tasks: data.tasks,
+      const result = await this.transport.callTool('generate_tests_content', {
+        stepNumber,
+        title,
+        tasks,
       })
 
       return result
     } catch (error) {
-      console.error('Create step failed:', error)
+      mcpLogger.error('Generate tests content failed:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Generate solution content (web-optimized - no file creation)
+   */
+  async generateSolutionContent(stepNumber: number, title: string, tasks: string[]): Promise<any> {
+    if (!this.transport || !this.connected) {
+      throw new Error('MCP client not connected')
+    }
+
+    try {
+      const result = await this.transport.callTool('generate_solution_content', {
+        stepNumber,
+        title,
+        tasks,
+      })
+
+      return result
+    } catch (error) {
+      mcpLogger.error('Generate solution content failed:', error)
       throw error
     }
   }
@@ -185,7 +234,7 @@ export class MCPClient {
 
       return result
     } catch (error) {
-      console.error('Run tests failed:', error)
+      mcpLogger.error('Run tests failed:', error)
       throw error
     }
   }
@@ -202,7 +251,7 @@ export class MCPClient {
       const tools = await this.transport.listTools()
       return tools.map((tool: any) => tool.name)
     } catch (error) {
-      console.error('List tools failed:', error)
+      mcpLogger.error('List tools failed:', error)
       throw error
     }
   }
@@ -220,7 +269,7 @@ export class MCPClient {
       await this.connect()
       return true
     } catch (error) {
-      console.error('Connection test failed:', error)
+      mcpLogger.error('Connection test failed:', error)
       return false
     }
   }
@@ -329,27 +378,6 @@ go 1.21`
         content,
       })),
       message: `Successfully scaffolded ${language} project`,
-    }
-  }
-
-  private generateDemoStep(data: StepFormData): any {
-    return {
-      stepFile: `# Step ${data.stepNumber}: ${data.title}\n\n${data.tasks
-        .map(t => `- [ ] ${t.title}`)
-        .join('\n')}`,
-      solutionFile: `# Solution ${data.stepNumber}\n\nImplementation details...`,
-      testFile: `// Test file for step ${data.stepNumber}\ntest('${data.title}', () => {})`,
-    }
-  }
-
-  private generateDemoTestResults(stepNumber: number): any {
-    return {
-      passed: Math.random() > 0.3,
-      tests: [
-        { name: `Test ${stepNumber}.1`, passed: true },
-        { name: `Test ${stepNumber}.2`, passed: Math.random() > 0.5 },
-      ],
-      output: `Running tests for step ${stepNumber}...\nTest execution complete.`,
     }
   }
 }

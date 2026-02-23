@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ThemeToggle } from './ThemeToggle'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 const navigation = [
   {
@@ -20,11 +22,22 @@ const navigation = [
     icon: '🏗️',
   },
   {
-    name: 'Develop',
-    href: '/dashboard/develop',
-    description: 'Coming soon - Create steps and tests',
-    icon: '⚙️',
-    disabled: true,
+    name: 'Create Step',
+    href: '/dashboard/create',
+    description: 'Generate step markdown with tasks and instructions',
+    icon: '📝',
+  },
+  {
+    name: 'Generate Tests',
+    href: '/dashboard/tests',
+    description: 'Generate test scaffolding for step validation',
+    icon: '🧪',
+  },
+  {
+    name: 'Generate Solution',
+    href: '/dashboard/solution',
+    description: 'Generate solution template for Claude Code',
+    icon: '✅',
   },
 ]
 
@@ -35,7 +48,7 @@ export function Sidebar() {
   return (
     <div
       className={cn(
-        'relative border-r border-gray-200 bg-white transition-all duration-300',
+        'relative flex flex-col h-full border-r border-border-default bg-bg-sidebar transition-all duration-300',
         isCollapsed ? 'w-16' : 'w-64'
       )}
     >
@@ -43,58 +56,70 @@ export function Sidebar() {
       <button
         type="button"
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-6 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm hover:bg-gray-50 transition-colors"
+        className="absolute -right-3 top-6 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-border-default bg-bg-primary shadow-sm hover:bg-bg-secondary transition-colors"
         aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {isCollapsed ? (
-          <ChevronRight className="h-4 w-4 text-gray-600" />
+          <ChevronRight className="h-4 w-4 text-text-secondary" />
         ) : (
-          <ChevronLeft className="h-4 w-4 text-gray-600" />
+          <ChevronLeft className="h-4 w-4 text-text-secondary" />
         )}
       </button>
 
       {/* Navigation */}
-      <nav className={cn('p-6 space-y-2', isCollapsed && 'p-3')}>
-        {navigation.map((item) => {
-          const isActive = pathname === item.href
-          return (
-            <Link
-              key={item.name}
-              href={item.disabled ? '#' : item.href}
-              className={cn(
-                'block rounded-lg text-sm font-medium transition-colors',
-                isCollapsed ? 'px-2 py-3' : 'px-4 py-3',
-                isActive
-                  ? 'bg-ps-orange text-white'
-                  : item.disabled
-                  ? 'text-gray-400 cursor-not-allowed'
-                  : 'text-gray-700 hover:bg-gray-100'
-              )}
-              onClick={(e) => item.disabled && e.preventDefault()}
-              title={isCollapsed ? item.name : undefined}
-            >
-              {isCollapsed ? (
-                <div className="flex justify-center text-xl">
-                  {item.icon}
-                </div>
-              ) : (
-                <>
-                  <div className="font-semibold flex items-center gap-2">
-                    <span className="text-xl">{item.icon}</span>
-                    {item.name}
-                  </div>
-                  <div className={cn(
-                    'text-xs mt-1',
-                    isActive ? 'text-white/80' : 'text-gray-500'
-                  )}>
-                    {item.description}
-                  </div>
-                </>
-              )}
-            </Link>
-          )
-        })}
-      </nav>
+      <TooltipProvider delayDuration={200}>
+        <nav className={cn('p-6 space-y-2 flex-1 overflow-y-auto', isCollapsed && 'p-3')}>
+          {navigation.map((item) => {
+            const isActive = pathname === item.href
+            return (
+              <Tooltip key={item.name}>
+                <TooltipTrigger asChild>
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      'block rounded-lg text-sm font-medium transition-colors',
+                      isCollapsed ? 'px-2 py-3' : 'px-4 py-3',
+                      isActive
+                        ? 'bg-accent-orange text-white dark:bg-accent-hover'
+                        : 'text-text-primary hover:bg-bg-tertiary'
+                    )}
+                  >
+                    {isCollapsed ? (
+                      <div className="flex justify-center text-xl">
+                        {item.icon}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">{item.icon}</span>
+                        <span className="font-semibold">{item.name}</span>
+                      </div>
+                    )}
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="max-w-xs">
+                  <p className="text-xs">{item.description}</p>
+                </TooltipContent>
+              </Tooltip>
+            )
+          })}
+        </nav>
+      </TooltipProvider>
+
+      {/* Theme Toggle at Bottom - Always visible */}
+      <div className={cn(
+        'border-t border-border-default p-4 flex-shrink-0',
+        isCollapsed && 'p-3 flex justify-center'
+      )}>
+        <div className={cn(
+          'flex items-center gap-3',
+          isCollapsed && 'flex-col'
+        )}>
+          <ThemeToggle />
+          {!isCollapsed && (
+            <span className="text-xs text-text-muted">Theme</span>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

@@ -1,23 +1,24 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { Button } from '@/components/ui/button'
 import { FileTreeNode } from '@/lib/types'
+import { useTheme } from '@/components/providers/ThemeProvider'
 
 interface CodePreviewProps {
   file: FileTreeNode | null
-  theme?: 'light' | 'dark'
 }
 
-export function CodePreview({ file, theme = 'light' }: CodePreviewProps) {
+export function CodePreview({ file }: CodePreviewProps) {
   const [copied, setCopied] = useState(false)
+  const { resolvedTheme } = useTheme()
 
   if (!file || !file.content) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-        <p className="text-gray-500">Select a file to preview its contents</p>
+      <div className="bg-bg-card rounded-lg border border-border-default p-12 text-center">
+        <p className="text-text-muted">Select a file to preview its contents</p>
       </div>
     )
   }
@@ -72,12 +73,12 @@ export function CodePreview({ file, theme = 'light' }: CodePreviewProps) {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+    <div className="bg-bg-card rounded-lg border border-border-default overflow-hidden">
+      <div className="bg-bg-secondary px-4 py-3 border-b border-border-default flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-sm">{getFileIcon(file.name)}</span>
-          <span className="text-sm font-mono text-gray-700">{file.name}</span>
-          <span className="text-xs text-gray-500">
+          <span className="text-sm font-mono text-text-primary">{file.name}</span>
+          <span className="text-xs text-text-muted">
             {file.path}
           </span>
         </div>
@@ -101,7 +102,7 @@ export function CodePreview({ file, theme = 'light' }: CodePreviewProps) {
       <div className="overflow-auto max-h-[600px]">
         <SyntaxHighlighter
           language={getLanguage(file.name)}
-          style={theme === 'dark' ? vscDarkPlus : vs}
+          style={resolvedTheme === 'dark' ? vscDarkPlus : vs}
           showLineNumbers
           customStyle={{
             margin: 0,

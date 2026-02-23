@@ -31,8 +31,8 @@ export function FileTree({ files, onFileSelect, selectedFile }: FileTreeProps) {
       <div key={node.path}>
         <div
           className={`
-            flex items-center py-1.5 px-2 cursor-pointer hover:bg-gray-100 transition-colors
-            ${isSelected ? 'bg-ps-orange/10 border-l-2 border-ps-orange' : ''}
+            flex items-center py-1.5 px-2 cursor-pointer hover:bg-bg-tertiary transition-colors text-text-primary
+            ${isSelected ? 'bg-accent-orange/10 border-l-2 border-accent-orange dark:bg-accent-primary/10 dark:border-accent-primary' : ''}
           `}
           style={{ paddingLeft: `${depth * 20 + 8}px` }}
           onClick={() => {
@@ -64,9 +64,9 @@ export function FileTree({ files, onFileSelect, selectedFile }: FileTreeProps) {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
-        <h3 className="text-sm font-semibold text-gray-700">Project Structure</h3>
+    <div className="bg-bg-card rounded-lg border border-border-default overflow-hidden">
+      <div className="bg-bg-secondary px-4 py-3 border-b border-border-default">
+        <h3 className="text-sm font-semibold text-text-primary">Project Structure</h3>
       </div>
       <div className="p-2 max-h-[500px] overflow-auto">
         {files.map((file) => renderNode(file))}

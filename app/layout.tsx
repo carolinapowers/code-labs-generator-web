@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
 import { QueryProvider } from '@/components/providers/QueryProvider'
+import { ThemeProvider } from '@/components/providers/ThemeProvider'
+import { WorkflowProvider } from '@/contexts/WorkflowContext'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -15,9 +17,13 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="en" suppressHydrationWarning>
         <body className="antialiased">
-          <QueryProvider>{children}</QueryProvider>
+          <ThemeProvider>
+            <QueryProvider>
+              <WorkflowProvider>{children}</WorkflowProvider>
+            </QueryProvider>
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

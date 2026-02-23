@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { LearningObjectivesForm } from '@/components/forms/LearningObjectivesForm'
 import { MarkdownRenderer } from '@/components/displays/MarkdownRenderer'
 import { useWorkflow } from '@/contexts/WorkflowContext'
+import { brainstormLabOpportunity } from '@/lib/mcp-proxy-client'
 import type { BrainstormFormData } from '@/lib/validators'
 
 export default function BrainstormPage() {
@@ -20,25 +21,38 @@ export default function BrainstormPage() {
     setGeneratedContent(null)
 
     try {
-      const response = await fetch('/api/mcp/brainstorm', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
+      // Call MCP tool through proxy
+      const response = await brainstormLabOpportunity(data)
 
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to generate LAB_OPPORTUNITY.md')
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to generate LAB_OPPORTUNITY.md')
       }
 
-      setGeneratedContent(result.content)
-      setCost(result.cost)
-      setProvider(result.provider)
-      // Save to workflow context for use in scaffold page
-      setBrainstormContent(result.content)
+      // Extract content from MCP response format
+      // MCP returns: [{ type: "text", text: "..." }]
+      let content: string
+      const result = (response as any).result // Proxy returns 'result', not 'data'
+
+      if (!result) {
+        throw new Error('No result returned from MCP server')
+      }
+
+      if (typeof result === 'string') {
+        content = result
+      } else if (Array.isArray(result) && result.length > 0 && result[0].text) {
+        content = result[0].text
+      } else if ((result as any).content) {
+        content = (result as any).content
+      } else {
+        throw new Error('Unexpected MCP response format')
+      }
+
+      setGeneratedContent(content)
+      setCost((response as any).cost || 0)
+      setProvider(data.provider || 'template')
+
+      // Save to workflow context for use in scaffold and develop pages
+      setBrainstormContent(content)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred')
     } finally {
@@ -49,8 +63,8 @@ export default function BrainstormPage() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Brainstorm Workflow</h1>
-        <p className="text-gray-600">
+        <h1 className="text-3xl font-bold text-text-primary mb-2">Brainstorm Workflow</h1>
+        <p className="text-text-secondary">
           Generate a complete LAB_OPPORTUNITY.md file from your learning objectives.
           This AI-powered tool structures your ideas into a comprehensive Code Lab plan.
         </p>
@@ -59,36 +73,36 @@ export default function BrainstormPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Form Section */}
         <div>
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Learning Objectives</h2>
+          <div className="bg-bg-card rounded-lg border border-border-default p-6">
+            <h2 className="text-xl font-semibold text-text-primary mb-4">Learning Objectives</h2>
             <LearningObjectivesForm onSubmit={handleSubmit} isLoading={isLoading} />
           </div>
         </div>
 
         {/* Preview Section */}
         <div>
-          <div className="sticky top-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Preview</h2>
+          <div className="sticky top-8 bg-bg-card rounded-lg border border-border-default p-6">
+            <h2 className="text-xl font-semibold text-text-primary mb-4">Preview</h2>
 
             {isLoading && (
-              <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ps-orange mx-auto mb-4"></div>
-                <p className="text-gray-600">Generating LAB_OPPORTUNITY.md...</p>
+              <div className="bg-gray-50 dark:bg-bg-tertiary rounded-lg p-12 text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-orange mx-auto mb-4"></div>
+                <p className="text-text-secondary">Generating LAB_OPPORTUNITY.md...</p>
               </div>
             )}
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-                <h3 className="text-red-800 font-semibold mb-2">Error</h3>
-                <p className="text-red-700">{error}</p>
+              <div className="bg-status-error border border-ps-error rounded-lg p-6">
+                <h3 className="text-status-error font-semibold mb-2">Error</h3>
+                <p className="text-status-error">{error}</p>
               </div>
             )}
 
             {generatedContent && !isLoading && (
               <div>
                 {(cost !== null || provider) && (
-                  <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div className="text-sm text-blue-800">
+                  <div className="mb-4 bg-status-info border border-ps-info rounded-lg p-4">
+                    <div className="text-sm text-status-info">
                       {provider && (
                         <p>Provider: <strong>{
                           provider === 'template' ? 'Template (Free)' :
@@ -108,8 +122,8 @@ export default function BrainstormPage() {
             )}
 
             {!isLoading && !error && !generatedContent && (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
-                <p className="text-gray-500">
+              <div className="bg-gray-50 dark:bg-bg-tertiary rounded-lg p-12 text-center">
+                <p className="text-text-muted">
                   Fill out the form and click "Generate" to see your LAB_OPPORTUNITY.md
                 </p>
               </div>

@@ -9,11 +9,11 @@ export default function DashboardLayout({
 }) {
   return (
     <WorkflowProvider>
-      <div className="min-h-screen bg-gray-50">
+      <div className="flex flex-col h-screen bg-bg-secondary">
         <Header />
-        <div className="flex">
+        <div className="flex flex-1 overflow-hidden">
           <Sidebar />
-          <main className="flex-1 p-8">{children}</main>
+          <main className="flex-1 p-8 overflow-y-auto">{children}</main>
         </div>
       </div>
     </WorkflowProvider>

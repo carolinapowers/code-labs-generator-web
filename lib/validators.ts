@@ -20,19 +20,5 @@ export const scaffoldSchema = z.object({
   opportunityContent: z.string().optional(),
 })
 
-export const stepSchema = z.object({
-  stepNumber: z.number().min(1).max(100),
-  title: z.string().min(5, 'Step title must be at least 5 characters'),
-  tasks: z
-    .array(
-      z.object({
-        title: z.string().min(3, 'Task title must be at least 3 characters'),
-        description: z.string().optional(),
-      })
-    )
-    .min(1, 'At least one task is required'),
-})
-
 export type BrainstormFormData = z.infer<typeof brainstormSchema>
 export type ScaffoldFormData = z.infer<typeof scaffoldSchema>
-export type StepFormData = z.infer<typeof stepSchema>

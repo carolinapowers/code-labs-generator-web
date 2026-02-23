@@ -53,3 +53,38 @@ export interface APIResponse<T = any> {
   cost?: number
   tokensUsed?: number
 }
+
+// Step generation types
+export interface StepContentData {
+  stepNumber: number
+  title: string
+  tasks: string[]
+}
+
+export interface GeneratedStepFile {
+  filename: string
+  content: string
+  language: string
+}
+
+// MCP Tool Response Types
+export interface MCPToolResponse<T = any> {
+  success: boolean
+  result?: T
+  error?: string
+  tool?: string
+  cost?: number
+  tokensUsed?: number
+}
+
+export interface StandardMCPResponse<T = any> {
+  success: boolean
+  data?: T
+  error?: string
+  meta?: {
+    tool?: string
+    cost?: number
+    tokensUsed?: number
+    duration?: number
+  }
+}
